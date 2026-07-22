@@ -39,16 +39,18 @@ export default function CompletePage() {
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-zwita-ink text-center">
       <Image
-        src="/images/mill/details/clay-jars.jpg"
+        src="/images/mill/details/ecran_fin.png"
         alt=""
         fill
         sizes="100vw"
         className="object-cover"
         priority
       />
+      {/* The artwork is brightest exactly where the result content sits, so the
+          scrim stays light over the scene and ramps up hard toward the bottom. */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(37,34,29,0.35)_0%,rgba(37,34,29,0.25)_35%,rgba(37,34,29,0.88)_100%)]"
+        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(37,34,29,0.25)_0%,rgba(37,34,29,0.12)_30%,rgba(37,34,29,0.72)_68%,rgba(37,34,29,0.94)_100%)]"
       />
 
       <div className="safe-top safe-x safe-bottom relative flex flex-1 flex-col items-center justify-end px-6 pb-8 pt-6">
