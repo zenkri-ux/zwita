@@ -1,8 +1,9 @@
 # ZWITA — Liens QR à imprimer (9 codes)
 
 **Source de vérité :** `src/content/stations.ts` (champ `scanCode`).
-**Base URL actuelle :** `http://51.103.179.122` (VM Azure), configurable via
-`NEXT_PUBLIC_BASE_URL`.
+**Base URL de production :** `https://zwita.gr07-idriss.work.gd`
+(VM Azure `51.103.179.122`, servie en HTTPS par Traefik + Let's Encrypt),
+configurable via `NEXT_PUBLIC_BASE_URL`.
 
 > ⚠️ **À lire avant impression**
 > - L'URL est **encodée en dur dans l'image du QR**. Si le domaine change
@@ -19,49 +20,49 @@ Ce QR **n'est pas une station** : il sert à accéder au site / démarrer le jeu
 À coller sur la plaque d'histoire (panneau d'introduction).
 
 ```
-http://51.103.179.122/
+https://zwita.gr07-idriss.work.gd/
 ```
 
 ## 2. QR des 8 stations (une plaque = un code unique)
 
 | # | Station | Plaque / panneau | Code | URL à encoder dans le QR |
 |---|---------|------------------|------|--------------------------|
-| 1 | `access-corridor` | الممر — Couloir d'accès | `M3K7Q2` | `http://51.103.179.122/q/M3K7Q2` |
-| 2 | `olive-storage` | مخزن الزيتون — Stockage des olives | `R9T4XB` | `http://51.103.179.122/q/R9T4XB` |
-| 3 | `crusher-mdar` | المدار — Meule / broyeur | `P6H2ZC` | `http://51.103.179.122/q/P6H2ZC` |
-| 4 | `rudimentary-press` | المِعصرة — Presse traditionnelle | `D8V5NK` | `http://51.103.179.122/q/D8V5NK` |
-| 5 | `boiler` | المرجل — Chaudière | `T2Y7WF` | `http://51.103.179.122/q/T2Y7WF` |
-| 6 | `settling-jars` | جِرار الترقيد — Jarres de décantation | `J4B9RM` | `http://51.103.179.122/q/J4B9RM` |
-| 7 | `byproducts` | المنتجات الجانبية — Sous-produits | `X7C3PD` | `http://51.103.179.122/q/X7C3PD` |
-| 8 | `dome` | القُبّة — Coupole | `H5N8VQ` | `http://51.103.179.122/q/H5N8VQ` |
+| 1 | `access-corridor` | الممر — Couloir d'accès | `M3K7Q2` | `https://zwita.gr07-idriss.work.gd/q/M3K7Q2` |
+| 2 | `olive-storage` | مخزن الزيتون — Stockage des olives | `R9T4XB` | `https://zwita.gr07-idriss.work.gd/q/R9T4XB` |
+| 3 | `crusher-mdar` | المدار — Meule / broyeur | `P6H2ZC` | `https://zwita.gr07-idriss.work.gd/q/P6H2ZC` |
+| 4 | `rudimentary-press` | المِعصرة — Presse traditionnelle | `D8V5NK` | `https://zwita.gr07-idriss.work.gd/q/D8V5NK` |
+| 5 | `boiler` | المرجل — Chaudière | `T2Y7WF` | `https://zwita.gr07-idriss.work.gd/q/T2Y7WF` |
+| 6 | `settling-jars` | جِرار الترقيد — Jarres de décantation | `J4B9RM` | `https://zwita.gr07-idriss.work.gd/q/J4B9RM` |
+| 7 | `byproducts` | المنتجات الجانبية — Sous-produits | `X7C3PD` | `https://zwita.gr07-idriss.work.gd/q/X7C3PD` |
+| 8 | `dome` | القُبّة — Coupole | `H5N8VQ` | `https://zwita.gr07-idriss.work.gd/q/H5N8VQ` |
 
 ### Liste brute (à copier dans un générateur de QR)
 
 ```
-http://51.103.179.122/
-http://51.103.179.122/q/M3K7Q2
-http://51.103.179.122/q/R9T4XB
-http://51.103.179.122/q/P6H2ZC
-http://51.103.179.122/q/D8V5NK
-http://51.103.179.122/q/T2Y7WF
-http://51.103.179.122/q/J4B9RM
-http://51.103.179.122/q/X7C3PD
-http://51.103.179.122/q/H5N8VQ
+https://zwita.gr07-idriss.work.gd/
+https://zwita.gr07-idriss.work.gd/q/M3K7Q2
+https://zwita.gr07-idriss.work.gd/q/R9T4XB
+https://zwita.gr07-idriss.work.gd/q/P6H2ZC
+https://zwita.gr07-idriss.work.gd/q/D8V5NK
+https://zwita.gr07-idriss.work.gd/q/T2Y7WF
+https://zwita.gr07-idriss.work.gd/q/J4B9RM
+https://zwita.gr07-idriss.work.gd/q/X7C3PD
+https://zwita.gr07-idriss.work.gd/q/H5N8VQ
 ```
 
 ### JSON (pour génération automatisée)
 
 ```json
 [
-  { "type": "entry",   "station": "history",           "url": "http://51.103.179.122/" },
-  { "type": "station", "station": "access-corridor",   "code": "M3K7Q2", "url": "http://51.103.179.122/q/M3K7Q2" },
-  { "type": "station", "station": "olive-storage",     "code": "R9T4XB", "url": "http://51.103.179.122/q/R9T4XB" },
-  { "type": "station", "station": "crusher-mdar",      "code": "P6H2ZC", "url": "http://51.103.179.122/q/P6H2ZC" },
-  { "type": "station", "station": "rudimentary-press", "code": "D8V5NK", "url": "http://51.103.179.122/q/D8V5NK" },
-  { "type": "station", "station": "boiler",            "code": "T2Y7WF", "url": "http://51.103.179.122/q/T2Y7WF" },
-  { "type": "station", "station": "settling-jars",     "code": "J4B9RM", "url": "http://51.103.179.122/q/J4B9RM" },
-  { "type": "station", "station": "byproducts",        "code": "X7C3PD", "url": "http://51.103.179.122/q/X7C3PD" },
-  { "type": "station", "station": "dome",              "code": "H5N8VQ", "url": "http://51.103.179.122/q/H5N8VQ" }
+  { "type": "entry",   "station": "history",           "url": "https://zwita.gr07-idriss.work.gd/" },
+  { "type": "station", "station": "access-corridor",   "code": "M3K7Q2", "url": "https://zwita.gr07-idriss.work.gd/q/M3K7Q2" },
+  { "type": "station", "station": "olive-storage",     "code": "R9T4XB", "url": "https://zwita.gr07-idriss.work.gd/q/R9T4XB" },
+  { "type": "station", "station": "crusher-mdar",      "code": "P6H2ZC", "url": "https://zwita.gr07-idriss.work.gd/q/P6H2ZC" },
+  { "type": "station", "station": "rudimentary-press", "code": "D8V5NK", "url": "https://zwita.gr07-idriss.work.gd/q/D8V5NK" },
+  { "type": "station", "station": "boiler",            "code": "T2Y7WF", "url": "https://zwita.gr07-idriss.work.gd/q/T2Y7WF" },
+  { "type": "station", "station": "settling-jars",     "code": "J4B9RM", "url": "https://zwita.gr07-idriss.work.gd/q/J4B9RM" },
+  { "type": "station", "station": "byproducts",        "code": "X7C3PD", "url": "https://zwita.gr07-idriss.work.gd/q/X7C3PD" },
+  { "type": "station", "station": "dome",              "code": "H5N8VQ", "url": "https://zwita.gr07-idriss.work.gd/q/H5N8VQ" }
 ]
 ```
 
@@ -96,13 +97,34 @@ joueur peut taper le code court (ex. `P6H2ZC`) dans l'app.
 
 Les `scanCode` restant identiques, seul le préfixe d'URL change.
 
-## Limites connues (HTTP sans domaine)
+## Déploiement
 
-Tant que le site est servi en **HTTP sur une IP** :
-- la **caméra intégrée** à l'app ne fonctionne pas sur mobile (`getUserMedia`
-  exige HTTPS) → c'est pourquoi le parcours principal passe par l'appareil photo
-  natif + le lien `/q/<code>`, qui lui marche en HTTP ;
-- le **service worker / mode hors-ligne PWA** reste inactif (HTTPS requis).
+Le site tourne sur la VM Azure derrière le Traefik existant, en HTTPS :
 
-Passer en HTTPS (domaine + certificat) réactive la caméra intégrée et le mode
-hors-ligne, sans changer les `scanCode`.
+```bash
+docker build -t zwita:latest .
+
+docker run -d --name zwita --restart unless-stopped \
+  --network idriss_app-network \
+  --label 'traefik.enable=true' \
+  --label 'traefik.http.routers.zwita.rule=Host(`zwita.gr07-idriss.work.gd`)' \
+  --label 'traefik.http.routers.zwita.entrypoints=websecure' \
+  --label 'traefik.http.routers.zwita.tls.certresolver=myresolver' \
+  --label 'traefik.http.services.zwita.loadbalancer.server.port=3000' \
+  zwita:latest
+```
+
+Le certificat est émis automatiquement par Let's Encrypt au premier accès.
+Prérequis : l'enregistrement DNS `zwita.gr07-idriss.work.gd → 51.103.179.122`.
+
+Note : la VM n'a que ~900 Mo de RAM ; un fichier d'échange (swap) de 2 Go est
+nécessaire pour que `next build` aboutisse.
+
+## Ce que le HTTPS apporte
+
+Comme le site est servi en HTTPS (et non en HTTP sur une IP) :
+- ✅ la **caméra intégrée** à l'app fonctionne (`getUserMedia` exige un contexte
+  sécurisé) — en plus de l'appareil photo natif ;
+- ✅ le **service worker / mode hors-ligne PWA** est actif, ce qui compte dans
+  une huilerie souterraine où le réseau est mauvais ;
+- ✅ l'app est installable sur l'écran d'accueil.

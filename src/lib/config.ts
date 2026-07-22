@@ -6,9 +6,12 @@
  *   1. NEXT_PUBLIC_BASE_URL (set at build time for link/QR generation)
  *   2. the browser's current origin (so the app works on localhost and on the
  *      server without rebuilding)
- *   3. the Azure VM fallback used to generate the printed codes
+ *   3. the production domain used to generate the printed codes
+ *
+ * Served over HTTPS via Traefik + Let's Encrypt, which is what allows the
+ * in-app camera (getUserMedia) and the offline service worker to work.
  */
-export const FALLBACK_BASE_URL = "http://51.103.179.122";
+export const FALLBACK_BASE_URL = "https://zwita.gr07-idriss.work.gd";
 
 export function getBaseUrl(): string {
   const configured = process.env.NEXT_PUBLIC_BASE_URL;
