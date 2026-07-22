@@ -6,6 +6,12 @@
 // Output: qr/*.svg (vector, scales to any print size) + qr/index.html (a
 // printable contact sheet with one card per plaque).
 //
+// Each SVG is SELF-LABELLED: the station name (ar + fr) and the short code are
+// drawn under the QR. Nine bare QR codes are indistinguishable by eye, so the
+// label is what stops the wrong code being glued to the wrong plaque. Printing
+// the code also gives visitors the manual fallback when scanning fails (dust,
+// dim light, refused camera permission).
+//
 // The station codes are read straight out of src/content/stations.ts so this
 // script and the app can never disagree. If that file's shape changes, the
 // script fails loudly rather than emitting wrong codes onto physical signage.
@@ -56,15 +62,71 @@ function readStations() {
   return found;
 }
 
+const escapeXml = (value) =>
+  String(value).replace(
+    /[&<>"']/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c],
+  );
+
+/**
+ * Wrap a bare QR SVG in a labelled card: QR on top, Arabic + French station
+ * name below, then the short code in a box (or a "scan to start" line for the
+ * entry code). The QR itself stays pure black-on-white — colouring it would
+ * only hurt scan reliability.
+ */
+function labelledSvg(qrSvg, entry) {
+  // The qrcode lib emits `viewBox="0 0 N N"`; re-embed its content as a nested
+  // <svg> so it scales into our layout independently of its module count.
+  const viewBox = qrSvg.match(/viewBox="([^"]+)"/)?.[1] ?? "0 0 37 37";
+  const inner = qrSvg.replace(/^[\s\S]*?<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
+
+  const W = 1000;
+  const PAD = 48;
+  const qrSize = W - PAD * 2;
+
+  let y = PAD + qrSize + 76; // baseline of the Arabic name
+  const arY = y;
+  y += 54;
+  const frY = y;
+  y += 42;
+  const boxY = y;
+  const boxH = 118;
+  y = boxY + boxH + 38;
+  const urlY = y;
+  const H = urlY + PAD;
+
+  const codeBlock = entry.code
+    ? `  <rect x="${PAD}" y="${boxY}" width="${W - PAD * 2}" height="${boxH}" rx="20"
+        fill="#F7F2E8" stroke="#B7794C" stroke-width="3"/>
+  <text x="${W / 2}" y="${boxY + 78}" text-anchor="middle" font-size="72"
+        font-weight="700" letter-spacing="10" fill="#25221D"
+        font-family="ui-monospace, 'Courier New', monospace">${escapeXml(entry.code)}</text>`
+    : `  <text x="${W / 2}" y="${boxY + 78}" text-anchor="middle" font-size="46"
+        font-weight="700" fill="#0878C9">${escapeXml(entry.cta ?? "")}</text>`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"
+     viewBox="0 0 ${W} ${H}" font-family="system-ui, 'Segoe UI', Tahoma, Arial, sans-serif">
+  <rect width="${W}" height="${H}" fill="#ffffff"/>
+  <svg x="${PAD}" y="${PAD}" width="${qrSize}" height="${qrSize}" viewBox="${viewBox}">
+${inner}
+  </svg>
+  <text x="${W / 2}" y="${arY}" text-anchor="middle" font-size="60" font-weight="700"
+        fill="#25221D" direction="rtl">${escapeXml(entry.ar)}</text>
+  <text x="${W / 2}" y="${frY}" text-anchor="middle" font-size="34"
+        fill="#6F7938">${escapeXml(entry.fr)}</text>
+${codeBlock}
+  <text x="${W / 2}" y="${urlY}" text-anchor="middle" font-size="22"
+        fill="#8a837b">${escapeXml(entry.url)}</text>
+</svg>
+`;
+}
+
 function card(entry) {
+  // The SVG already carries the name + code, so the sheet only adds the file
+  // name — what you need when matching a printout to a plaque.
   return `    <figure class="card">
-      <img src="./${entry.file}" alt="QR ${entry.title}" />
-      <figcaption>
-        <strong class="ar">${entry.ar}</strong>
-        <span class="fr">${entry.fr}</span>
-        <code>${entry.code ?? "—"}</code>
-        <span class="url">${entry.url}</span>
-      </figcaption>
+      <img src="./${escapeXml(entry.file)}" alt="QR ${escapeXml(entry.fr)}" />
+      <figcaption>${escapeXml(entry.file)}</figcaption>
     </figure>`;
 }
 
@@ -79,20 +141,19 @@ function sheet(entries) {
   h1 { color: #07598F; }
   p.base { color: #6b6560; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-  .card { margin: 0; padding: 16px; background: #fff; border: 1px solid #ddd8cc; border-radius: 12px; text-align: center; break-inside: avoid; }
+  .card { margin: 0; padding: 12px; background: #fff; border: 1px solid #ddd8cc; border-radius: 12px; text-align: center; break-inside: avoid; }
   .card img { width: 100%; height: auto; }
-  figcaption { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
-  .ar { font-size: 1.25rem; }
-  .fr { color: #6F7938; }
-  code { background: #F7F2E8; padding: 2px 6px; border-radius: 6px; font-size: 1rem; letter-spacing: 1px; }
-  .url { font-size: .7rem; color: #8a837b; word-break: break-all; }
+  figcaption { margin-top: 8px; font-size: .75rem; color: #8a837b; font-family: ui-monospace, monospace; }
   @media print { body { background: #fff; margin: 0; } .card { border-color: #999; } }
 </style>
 </head>
 <body>
   <h1>ZWITA — codes QR des plaques</h1>
-  <p class="base">Base : <strong>${BASE_URL}</strong> — ${entries.length} codes.
-     Le code court sous chaque QR peut être saisi à la main dans l'app si le scan échoue.</p>
+  <p class="base">Base : <strong>${escapeXml(BASE_URL)}</strong> — ${entries.length} codes.
+     Chaque QR porte son nom de station et son code court : ce code peut être saisi
+     à la main dans l'app si le scan échoue (poussière, faible lumière, caméra refusée).<br>
+     Taille d'impression conseillée : <strong>4×4 cm minimum</strong> (scan à ~30 cm),
+     <strong>8×8 cm</strong> si les visiteurs scannent à 1 m.</p>
   <div class="grid">
 ${entries.map(card).join("\n")}
   </div>
@@ -111,9 +172,10 @@ async function main() {
   entries.push({
     file: "00-entree-histoire.svg",
     url: entryUrl,
-    ar: "الدخول",
+    ar: "امسح لتبدأ الرحلة",
     fr: "Entrée — plaque Histoire",
     code: null,
+    cta: "ZWITA — زويتة",
   });
 
   // 2. One QR per physical plaque.
@@ -129,9 +191,11 @@ async function main() {
   });
 
   for (const entry of entries) {
-    const svg = await QRCode.toString(entry.url, { ...QR_OPTIONS, type: "svg" });
-    writeFileSync(join(OUT_DIR, entry.file), svg, "utf8");
-    console.log(`${entry.file.padEnd(28)} ${entry.url}`);
+    const qrSvg = await QRCode.toString(entry.url, { ...QR_OPTIONS, type: "svg" });
+    writeFileSync(join(OUT_DIR, entry.file), labelledSvg(qrSvg, entry), "utf8");
+    console.log(
+      `${entry.file.padEnd(28)} ${(entry.code ?? "entrée").padEnd(8)} ${entry.url}`,
+    );
   }
 
   writeFileSync(join(OUT_DIR, "index.html"), sheet(entries), "utf8");
