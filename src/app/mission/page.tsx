@@ -12,8 +12,8 @@ import { ScannerView, type SimulationPayload } from "@/components/ScannerView";
 import { DiscoveryCard } from "@/components/DiscoveryCard";
 import { ScanFeedback } from "@/components/ScanFeedback";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import { getStation } from "@/content/stations";
-import { buildQrPayload } from "@/lib/qr/payload";
+import { getStation, scannableStations } from "@/content/stations";
+import { buildScanUrl } from "@/lib/qr/payload";
 import type { Station } from "@/content/types";
 import type { ScanOutcome } from "@/lib/game/types";
 import { t } from "@/lib/i18n/locale";
@@ -66,21 +66,23 @@ export default function MissionPage() {
     // If that was the last station, the guard effect routes to /complete.
   }, []);
 
-  // Dev/e2e simulation buttons for the current step.
+  // Dev/e2e simulation buttons for the current step. They emit exactly what a
+  // printed QR contains (a <baseUrl>/q/<code> URL).
   const simulationPayloads = useMemo<SimulationPayload[]>(() => {
-    if (!currentStation) return [];
-    const wrong = getStation("dome");
+    if (!currentStation?.scanCode) return [];
+    // Any other scannable plaque stands in for "wrong station".
+    const wrong = scannableStations.find((s) => s.id !== currentStation.id);
     const payloads: SimulationPayload[] = [
       {
         label: `✓ ${t(currentStation.shortTitle, "ar")}`,
-        raw: buildQrPayload(currentStation.id, currentStation.qrToken),
+        raw: buildScanUrl(currentStation.scanCode),
         testid: "sim-correct",
       },
     ];
-    if (wrong && wrong.id !== currentStation.id) {
+    if (wrong?.scanCode) {
       payloads.push({
         label: `↻ ${t(wrong.shortTitle, "ar")}`,
-        raw: buildQrPayload(wrong.id, wrong.qrToken),
+        raw: buildScanUrl(wrong.scanCode),
         testid: "sim-wrong",
       });
     }

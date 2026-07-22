@@ -33,11 +33,18 @@ export type Station = {
   id: string;
   slug: string;
   /**
-   * Non-obvious token printed inside the station's QR payload. Never contains
-   * educational content. Development tokens are used until real codes are
-   * printed.
+   * Short, opaque, non-guessable code identifying this station's physical
+   * plaque. It is encoded in the printed QR as `<baseUrl>/q/<scanCode>` and can
+   * also be typed by hand as a fallback. Never contains educational content.
+   *
+   * Stations WITHOUT a scanCode have no scannable plaque (e.g. the history
+   * board carries the entry QR to the site instead) and are excluded from
+   * routes.
+   *
+   * WARNING: these values are physically printed — do not change them once the
+   * QR codes exist.
    */
-  qrToken: string;
+  scanCode?: string;
   title: LocalizedText;
   shortTitle: LocalizedText;
   /** One or more clue phrasings; the active game uses the first by default. */

@@ -8,8 +8,10 @@ import type { Station } from "./types";
 // text, fun facts and safety notes replace these only with explicit approval
 // (see AGENTS.md: "Do not invent historical facts").
 //
-// `qrToken` values are DEVELOPMENT tokens and must be replaced by the real
-// printed codes before launch.
+// `scanCode` values are the codes encoded in the PRINTED QR plaques
+// (`<baseUrl>/q/<scanCode>`). They avoid ambiguous characters (0/O, 1/I/L) so
+// they stay readable when typed by hand. Do NOT change them once printed.
+// The history board has no scanCode: it carries the entry QR to the site.
 //
 // Image paths point at the authentic photography already in /public/images.
 // Intrinsic width/height are nominal hints; components render inside fixed
@@ -22,7 +24,6 @@ export const stations: Station[] = [
   {
     id: "history",
     slug: "history",
-    qrToken: "dev-hist-7Q2",
     title: { ar: `${P} تاريخ المعصرة` },
     shortTitle: { ar: `${P} التاريخ` },
     clues: [{ ar: `${P} ابدأ من حيث تُروى الحكاية الأولى للمكان.` }],
@@ -42,7 +43,7 @@ export const stations: Station[] = [
   {
     id: "access-corridor",
     slug: "access-corridor",
-    qrToken: "dev-corr-4K9",
+    scanCode: "M3K7Q2",
     title: { ar: `${P} الممر` },
     shortTitle: { ar: `${P} الممر` },
     clues: [{ ar: `${P} تَقدَّم في الطريق الذي يقودك إلى الأسفل بهدوء.` }],
@@ -69,7 +70,7 @@ export const stations: Station[] = [
   {
     id: "olive-storage",
     slug: "olive-storage",
-    qrToken: "dev-stor-1B5",
+    scanCode: "R9T4XB",
     title: { ar: `${P} مخزن الزيتون` },
     shortTitle: { ar: `${P} المخزن` },
     clues: [{ ar: `${P} ابحث عن المكان الذي يُجمَع فيه المحصول قبل العصر.` }],
@@ -103,7 +104,7 @@ export const stations: Station[] = [
   {
     id: "crusher-mdar",
     slug: "crusher-mdar",
-    qrToken: "dev-mdar-9X3",
+    scanCode: "P6H2ZC",
     title: { ar: `${P} المدار` },
     shortTitle: { ar: `${P} المدار` },
     clues: [{ ar: `${P} ابحث عن الحجر الكبير الذي يدور ليَسحق الثمار.` }],
@@ -130,7 +131,7 @@ export const stations: Station[] = [
   {
     id: "rudimentary-press",
     slug: "rudimentary-press",
-    qrToken: "dev-prss-6M8",
+    scanCode: "D8V5NK",
     title: { ar: `${P} المِعصرة` },
     shortTitle: { ar: `${P} المِعصرة` },
     clues: [{ ar: `${P} ابحث عن الأداة التي تضغط العجين لتستخرج الزيت.` }],
@@ -156,7 +157,7 @@ export const stations: Station[] = [
   {
     id: "boiler",
     slug: "boiler",
-    qrToken: "dev-boil-3T1",
+    scanCode: "T2Y7WF",
     title: { ar: `${P} المرجل` },
     shortTitle: { ar: `${P} المرجل` },
     clues: [{ ar: `${P} ابحث عن الموضع الذي يُسخَّن فيه الماء.` }],
@@ -175,7 +176,7 @@ export const stations: Station[] = [
   {
     id: "settling-jars",
     slug: "settling-jars",
-    qrToken: "dev-jars-2R7",
+    scanCode: "J4B9RM",
     title: { ar: `${P} جِرار الترقيد` },
     shortTitle: { ar: `${P} الجِرار` },
     clues: [{ ar: `${P} ابحث عن الجِرار الكبيرة التي يهدأ فيها الزيت.` }],
@@ -209,7 +210,7 @@ export const stations: Station[] = [
   {
     id: "byproducts",
     slug: "byproducts",
-    qrToken: "dev-bypr-8N4",
+    scanCode: "X7C3PD",
     title: { ar: `${P} المنتجات الجانبية` },
     shortTitle: { ar: `${P} المخلّفات` },
     clues: [{ ar: `${P} ابحث عمّا يتبقّى بعد استخراج الزيت وله فائدة أخرى.` }],
@@ -228,7 +229,7 @@ export const stations: Station[] = [
   {
     id: "dome",
     slug: "dome",
-    qrToken: "dev-dome-5J6",
+    scanCode: "H5N8VQ",
     title: { ar: `${P} القُبّة` },
     shortTitle: { ar: `${P} القُبّة` },
     clues: [{ ar: `${P} ارفع نظرك نحو السقف المقوّس لتُنهي رحلتك.` }],
@@ -254,11 +255,31 @@ export const stations: Station[] = [
   },
 ];
 
-/** Lookup map by station id — the allowlist source for QR validation. */
+/** Lookup map by station id. */
 export const stationsById: Readonly<Record<string, Station>> = Object.freeze(
   Object.fromEntries(stations.map((s) => [s.id, s])),
 );
 
+/**
+ * Stations that have a physical scannable plaque (i.e. a printed QR code).
+ * The history board is excluded: it carries the entry QR to the site instead.
+ */
+export const scannableStations: Station[] = stations.filter((s) => s.scanCode);
+
+/**
+ * Allowlist used to validate scans: opaque scanCode -> station. A scanned value
+ * is only ever accepted if its code appears here.
+ */
+export const stationsByScanCode: Readonly<Record<string, Station>> = Object.freeze(
+  Object.fromEntries(
+    scannableStations.map((s) => [s.scanCode as string, s]),
+  ),
+);
+
 export function getStation(id: string): Station | undefined {
   return stationsById[id];
+}
+
+export function getStationByScanCode(code: string): Station | undefined {
+  return stationsByScanCode[code];
 }

@@ -1,54 +1,57 @@
 import { describe, it, expect } from "vitest";
-import { parseQrPayload, buildQrPayload } from "@/lib/qr/payload";
+import { parseScanInput, buildScanUrl } from "@/lib/qr/payload";
 
-describe("parseQrPayload", () => {
-  it("parses a valid ZWITA:1 payload", () => {
-    const result = parseQrPayload("ZWITA:1:crusher-mdar:dev-mdar-9X3");
-    expect(result).toEqual({
+describe("parseScanInput", () => {
+  it("extracts the code from a printed QR URL", () => {
+    expect(parseScanInput("http://51.103.179.122/q/P6H2ZC")).toEqual({
       ok: true,
-      stationId: "crusher-mdar",
-      token: "dev-mdar-9X3",
+      code: "P6H2ZC",
     });
   });
 
-  it("trims surrounding whitespace", () => {
-    const result = parseQrPayload("  ZWITA:1:dome:dev-dome-5J6  ");
-    expect(result.ok).toBe(true);
+  it("works over https and with a trailing slash or query", () => {
+    expect(parseScanInput("https://zwita.example/q/M3K7Q2/")).toMatchObject({
+      ok: true,
+      code: "M3K7Q2",
+    });
+    expect(parseScanInput("https://zwita.example/q/M3K7Q2?utm=poster")).toMatchObject({
+      ok: true,
+      code: "M3K7Q2",
+    });
   });
 
-  it("rejects a wrong prefix", () => {
-    expect(parseQrPayload("NOPE:1:dome:tok").ok).toBe(false);
+  it("accepts a bare code typed by hand, case-insensitively", () => {
+    expect(parseScanInput("p6h2zc")).toEqual({ ok: true, code: "P6H2ZC" });
+    expect(parseScanInput("  R9T4XB  ")).toEqual({ ok: true, code: "R9T4XB" });
   });
 
-  it("rejects an unsupported version", () => {
-    expect(parseQrPayload("ZWITA:2:dome:tok").ok).toBe(false);
+  it("rejects URLs that are not scan links", () => {
+    expect(parseScanInput("https://evil.example/phish").ok).toBe(false);
+    expect(parseScanInput("https://evil.example/").ok).toBe(false);
+    // A /q/ path with no code is still malformed.
+    expect(parseScanInput("https://zwita.example/q/").ok).toBe(false);
   });
 
-  it("rejects a URL-shaped payload (never opened as a link)", () => {
-    expect(parseQrPayload("https://evil.example/zwita").ok).toBe(false);
-    // Extra colons from a URL cause a segment-count mismatch.
-    expect(parseQrPayload("ZWITA:1:dome:https://evil.example").ok).toBe(false);
-  });
-
-  it("rejects malformed station ids and tokens", () => {
-    expect(parseQrPayload("ZWITA:1:BAD_ID:tok").ok).toBe(false);
-    expect(parseQrPayload("ZWITA:1:dome:").ok).toBe(false);
-    expect(parseQrPayload("ZWITA:1::tok").ok).toBe(false);
+  it("rejects malformed values", () => {
+    expect(parseScanInput("not-a-zwita-code").ok).toBe(false);
+    expect(parseScanInput("").ok).toBe(false);
+    expect(parseScanInput("AB").ok).toBe(false); // too short
+    expect(parseScanInput("TOOLONGCODE1234").ok).toBe(false);
   });
 
   it("rejects non-string input", () => {
-    expect(parseQrPayload(null).ok).toBe(false);
-    expect(parseQrPayload(undefined).ok).toBe(false);
-    expect(parseQrPayload(42 as unknown).ok).toBe(false);
+    expect(parseScanInput(null).ok).toBe(false);
+    expect(parseScanInput(undefined).ok).toBe(false);
+    expect(parseScanInput(42).ok).toBe(false);
   });
 
-  it("round-trips with buildQrPayload", () => {
-    const raw = buildQrPayload("olive-storage", "dev-stor-1B5");
-    const parsed = parseQrPayload(raw);
-    expect(parsed).toMatchObject({
-      ok: true,
-      stationId: "olive-storage",
-      token: "dev-stor-1B5",
-    });
+  it("round-trips with buildScanUrl", () => {
+    const url = buildScanUrl("H5N8VQ", "http://51.103.179.122");
+    expect(url).toBe("http://51.103.179.122/q/H5N8VQ");
+    expect(parseScanInput(url)).toEqual({ ok: true, code: "H5N8VQ" });
+  });
+
+  it("does not duplicate slashes when the base URL has one", () => {
+    expect(buildScanUrl("H5N8VQ", "http://host/")).toBe("http://host/q/H5N8VQ");
   });
 });

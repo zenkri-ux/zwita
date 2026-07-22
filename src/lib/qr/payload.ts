@@ -1,55 +1,73 @@
-// QR payload parsing.
-//
-// Scanned content is UNTRUSTED input. Payloads use a strict, versioned,
-// colon-delimited format that is deliberately NOT a URL:
-//
-//     ZWITA:1:<stationId>:<token>
-//
-// e.g. "ZWITA:1:crusher-mdar:dev-mdar-9X3"
-//
-// This module never constructs, resolves or opens a URL from scanned data. It
-// only extracts the station id and token for allowlist validation elsewhere.
+import { getBaseUrl } from "@/lib/config";
 
-export const QR_PREFIX = "ZWITA";
-export const QR_VERSION = "1";
+// Scan payload parsing.
+//
+// Printed QR codes encode a URL:  <baseUrl>/q/<SCANCODE>
+// e.g. "http://51.103.179.122/q/P6H2ZC"
+//
+// A URL is used (rather than an opaque custom string) so that the phone's
+// NATIVE camera app — which simply opens whatever URL it reads — lands on the
+// app's /q/<code> route and the game continues. The in-app ZXing scanner reads
+// the very same string and routes it through this parser.
+//
+// SECURITY: scanned content is untrusted. This module only EXTRACTS a code from
+// the string; it never fetches, resolves or navigates to a scanned URL. The
+// extracted code is then checked against the station allowlist. A string that
+// is not a bare code or a `/q/<code>` URL is rejected as malformed.
 
-export type ParsedPayload =
-  | { ok: true; stationId: string; token: string }
-  | { ok: false; reason: "malformed" };
-
-// stationId: lowercase kebab (matches content slugs). token: url-safe-ish, no colons.
-const STATION_ID_RE = /^[a-z][a-z0-9-]{0,63}$/;
-const TOKEN_RE = /^[A-Za-z0-9_-]{1,64}$/;
+/** Path segment that carries the station code. */
+export const SCAN_PATH_SEGMENT = "q";
 
 /**
- * Parse a raw scanned string into a station id + token, or a malformed result.
- * Strict by design: anything that is not an exact ZWITA:1 payload is rejected,
- * including URL-shaped strings, so no arbitrary link can ever be followed.
+ * Codes are short, uppercase and avoid ambiguous glyphs (0/O, 1/I/L) so they
+ * survive being typed by hand as the manual fallback.
  */
-export function parseQrPayload(raw: unknown): ParsedPayload {
-  if (typeof raw !== "string") return { ok: false, reason: "malformed" };
+const CODE_RE = /^[A-Z0-9]{4,12}$/;
 
-  const value = raw.trim();
-  // Exactly four colon-separated segments; extra colons (e.g. in a URL) fail.
-  const parts = value.split(":");
-  if (parts.length !== 4) return { ok: false, reason: "malformed" };
+export type ParsedScan =
+  | { ok: true; code: string }
+  | { ok: false; reason: "malformed" };
 
-  const [prefix, version, stationId, token] = parts as [
-    string,
-    string,
-    string,
-    string,
-  ];
+const MALFORMED: ParsedScan = { ok: false, reason: "malformed" };
 
-  if (prefix !== QR_PREFIX) return { ok: false, reason: "malformed" };
-  if (version !== QR_VERSION) return { ok: false, reason: "malformed" };
-  if (!STATION_ID_RE.test(stationId)) return { ok: false, reason: "malformed" };
-  if (!TOKEN_RE.test(token)) return { ok: false, reason: "malformed" };
+/**
+ * Extract a station code from a scanned QR value, a pasted link, or a manually
+ * typed code. Returns `malformed` for anything else.
+ */
+export function parseScanInput(raw: unknown): ParsedScan {
+  if (typeof raw !== "string") return MALFORMED;
 
-  return { ok: true, stationId, token };
+  let value = raw.trim();
+  if (!value) return MALFORMED;
+
+  if (/^https?:\/\//i.test(value)) {
+    const fromUrl = codeFromUrl(value);
+    if (!fromUrl) return MALFORMED;
+    value = fromUrl;
+  }
+
+  const code = value.toUpperCase();
+  return CODE_RE.test(code) ? { ok: true, code } : MALFORMED;
 }
 
-/** Build a canonical payload string (used by the simulated scanner and tests). */
-export function buildQrPayload(stationId: string, token: string): string {
-  return `${QR_PREFIX}:${QR_VERSION}:${stationId}:${token}`;
+/**
+ * Pull the segment following `/q/` out of a URL. Parsing only — the URL is
+ * never requested.
+ */
+function codeFromUrl(value: string): string | null {
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return null;
+  }
+  const segments = parsed.pathname.split("/").filter(Boolean);
+  const index = segments.indexOf(SCAN_PATH_SEGMENT);
+  if (index === -1) return null;
+  return segments[index + 1] ?? null;
+}
+
+/** Build the URL to encode in a printed QR code for a station. */
+export function buildScanUrl(code: string, baseUrl: string = getBaseUrl()): string {
+  return `${baseUrl.replace(/\/+$/, "")}/${SCAN_PATH_SEGMENT}/${code}`;
 }

@@ -4,18 +4,38 @@ import type { RouteTemplate } from "./types";
 // deterministically (see src/lib/game/route.ts) — never a random permutation —
 // so starting points are distributed while unsafe transitions cannot occur.
 //
-// The first vertical slice ships a single approved THREE-station demo route.
-// Additional templates (and full nine-station routes) are added later once
-// their transitions are safety-validated (see plan item U2).
+// Every template covers the SAME eight scannable stations (the eight physical
+// plaques). The history board is not included: it carries the entry QR to the
+// site rather than a station code.
 //
-// Invariant enforced by tests: every template must contain the same number of
-// stations so all players receive an equivalent-length experience.
+// The base order follows the mill's production flow (storage → crushing →
+// pressing → boiling → settling → by-products → dome). The other templates are
+// rotations of it, so players start at different points.
+//
+// TODO (on-site validation): confirm each template's transitions are safe to
+// walk in the underground space before printing final signage.
+
+const FLOW = [
+  "access-corridor",
+  "olive-storage",
+  "crusher-mdar",
+  "rudimentary-press",
+  "boiler",
+  "settling-jars",
+  "byproducts",
+  "dome",
+] as const;
+
+/** Rotate the canonical flow so routes start at different stations. */
+function rotate(offset: number): string[] {
+  return FLOW.map((_, i) => FLOW[(i + offset) % FLOW.length] as string);
+}
 
 export const routeTemplates: RouteTemplate[] = [
-  {
-    id: "demo-a",
-    stationIds: ["olive-storage", "crusher-mdar", "settling-jars"],
-  },
+  { id: "flow-a", stationIds: rotate(0) },
+  { id: "flow-b", stationIds: rotate(2) },
+  { id: "flow-c", stationIds: rotate(4) },
+  { id: "flow-d", stationIds: rotate(6) },
 ];
 
-export const STATIONS_PER_ROUTE = 3;
+export const STATIONS_PER_ROUTE = FLOW.length;

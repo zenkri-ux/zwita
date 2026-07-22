@@ -49,7 +49,7 @@ export const ar = {
     openScanner: "افتح الكاميرا",
     manualEntry: "أدخِل الرمز يدويًا",
     manualLabel: "رمز المحطة",
-    manualPlaceholder: "ZWITA:1:…",
+    manualPlaceholder: "P6H2ZC",
     submit: "تحقّق",
     next: "المحطة التالية",
     close: "إغلاق",

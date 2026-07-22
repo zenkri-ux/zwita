@@ -50,7 +50,7 @@ export const en: Dictionary = {
     openScanner: "Open the camera",
     manualEntry: "Enter the code manually",
     manualLabel: "Station code",
-    manualPlaceholder: "ZWITA:1:…",
+    manualPlaceholder: "P6H2ZC",
     submit: "Check",
     next: "Next station",
     close: "Close",

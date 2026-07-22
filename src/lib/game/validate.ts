@@ -1,37 +1,34 @@
-import { parseQrPayload } from "@/lib/qr/payload";
-import { stationsById } from "@/content/stations";
+import { parseScanInput } from "@/lib/qr/payload";
+import { stationsByScanCode } from "@/content/stations";
 import type { Station } from "@/content/types";
 import type { GameState, ScanOutcome } from "./types";
 
 export type ValidateResult = {
   outcome: ScanOutcome;
-  /** The recognised station, when the id+token matched the allowlist. */
+  /** The recognised station, when the code matched the allowlist. */
   station?: Station;
 };
 
 /**
- * Validate a raw scanned/entered payload against the player's current game
- * state and the station allowlist.
+ * Validate a scanned QR / typed code against the player's current state.
  *
- * Trust boundary: the raw value is untrusted. We parse strictly, then require
- * BOTH the station id AND its non-obvious token to match an allowlisted station
- * before any content is revealed. Nothing is ever treated as a URL.
+ * Trust boundary: `raw` is untrusted. It is parsed to a code (never navigated
+ * to), then the code must appear in the station allowlist before any content is
+ * revealed. This is what decides whether the player scanned the REQUIRED plaque
+ * or a different one.
  *
  * `allowlist` is injectable for testing; production uses the content map.
  */
 export function validateScan(
   raw: unknown,
   state: Pick<GameState, "stationIds" | "currentIndex" | "completedStationIds">,
-  allowlist: Readonly<Record<string, Station>> = stationsById,
+  allowlist: Readonly<Record<string, Station>> = stationsByScanCode,
 ): ValidateResult {
-  const parsed = parseQrPayload(raw);
+  const parsed = parseScanInput(raw);
   if (!parsed.ok) return { outcome: "malformed" };
 
-  const station = allowlist[parsed.stationId];
-  if (!station || station.qrToken !== parsed.token) {
-    // Unknown id, or a known id with the wrong token — not a recognised code.
-    return { outcome: "unknown-station" };
-  }
+  const station = allowlist[parsed.code];
+  if (!station) return { outcome: "unknown-station" };
 
   if (state.completedStationIds.includes(station.id)) {
     return { outcome: "already-completed", station };
