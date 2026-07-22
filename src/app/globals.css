@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Mill visual language (AGENTS.md VISUAL DIRECTION). */
+  --zwita-white: #f7f2e8;
+  --zwita-blue: #0878c9;
+  --zwita-blue-dark: #07598f;
+  --zwita-olive: #6f7938;
+  --zwita-clay: #b7794c;
+  --zwita-amber: #d99846;
+  --zwita-ink: #25221d;
+}
+
+@layer base {
+  html {
+    background-color: var(--zwita-white);
+    color: var(--zwita-ink);
+    /* Respect notches in standalone/PWA mode. */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  body {
+    min-height: 100dvh;
+    /* Slightly larger, high-contrast body text stays legible in dim light. */
+    font-size: 1.05rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Visible focus indicators for keyboard/switch users. */
+  :focus-visible {
+    outline: 3px solid var(--zwita-blue-dark);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Minimum 44x44 touch target helper. */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Honour reduced-motion: disable non-essential animation globally. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
