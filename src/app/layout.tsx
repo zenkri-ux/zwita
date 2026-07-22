@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cairo } from "next/font/google";
 import { ar } from "@/lib/i18n/dictionaries/ar";
+import { LocaleSync } from "@/components/LocaleSync";
 import "./globals.css";
 
 // Arabic-first font. next/font self-hosts the files (no external runtime
@@ -41,7 +42,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl" className={cairo.variable}>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        <LocaleSync />
+        {children}
+      </body>
     </html>
   );
 }

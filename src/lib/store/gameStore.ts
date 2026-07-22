@@ -6,7 +6,7 @@ import { assignRoute } from "@/lib/game/route";
 import { validateScan, type ValidateResult } from "@/lib/game/validate";
 import { scoreForStation } from "@/lib/game/score";
 import { isRouteComplete, derivePhase } from "@/lib/game/completion";
-import { CURRENT_GAME_VERSION, type GameState, type GamePhase } from "@/lib/game/types";
+import { CURRENT_GAME_VERSION, type GameState, type GamePhase, type Locale } from "@/lib/game/types";
 import { DEFAULT_LOCALE } from "@/lib/i18n/locale";
 
 // Single persistence instance for the app lifetime (client only).
@@ -33,8 +33,11 @@ export type GameStore = {
   hydrate: () => Promise<void>;
   /** Create a fresh anonymous session if none exists. */
   initSession: () => void;
-  /** Save nickname + avatar and deterministically assign the route. */
-  setProfile: (nickname: string, avatar: string) => void;
+  /** Save nickname, avatar and locale. Does not assign a route (that is
+   *  deferred until the rules screen calls startRoute). */
+  setProfile: (nickname: string, avatar: string, locale: Locale) => void;
+  /** Deterministically assign the route and begin the mission. */
+  startRoute: () => void;
   /** Validate a scanned/entered payload and update progress. */
   submitScan: (raw: string) => ValidateResult;
   /** Advance to the next clue (after a discovery screen). */
@@ -97,14 +100,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
     persist(fresh);
   },
 
-  setProfile: (nickname, avatar) => {
+  setProfile: (nickname, avatar, locale) => {
     const current = get().state;
     if (!current) return;
-    const route = assignRoute(current.sessionId, current.playerId);
     const next: GameState = {
       ...current,
       nickname: nickname.trim().slice(0, 40),
       avatar,
+      locale,
+    };
+    set(withPhase(next));
+    persist(next);
+  },
+
+  startRoute: () => {
+    const current = get().state;
+    if (!current || current.routeId) return;
+    const route = assignRoute(current.sessionId, current.playerId);
+    const next: GameState = {
+      ...current,
       routeId: route.id,
       stationIds: [...route.stationIds],
       currentIndex: 0,

@@ -17,12 +17,13 @@ import { buildQrPayload } from "@/lib/qr/payload";
 import type { Station } from "@/content/types";
 import type { ScanOutcome } from "@/lib/game/types";
 import { t } from "@/lib/i18n/locale";
-import { ar } from "@/lib/i18n/dictionaries/ar";
+import { useDict } from "@/lib/i18n/useDict";
 
 type Mode = "clue" | "scanning" | "discovery";
 
 export default function MissionPage() {
   const router = useRouter();
+  const dict = useDict();
   const { hydrated, state, phase } = useHydratedGame();
   const submitScan = useGameStore((s) => s.submitScan);
   const reset = useGameStore((s) => s.reset);
@@ -93,7 +94,7 @@ export default function MissionPage() {
 
   const locale = state.locale;
   const total = state.stationIds.length;
-  const stepLabel = `${ar.mission.stepLabel} ${Math.min(state.currentIndex + 1, total)} ${ar.mission.of} ${total}`;
+  const stepLabel = `${dict.mission.stepLabel} ${Math.min(state.currentIndex + 1, total)} ${dict.mission.of} ${total}`;
 
   // Discovery screen (also used for the final station before /complete).
   if (mode === "discovery" && discovered) {
@@ -106,7 +107,7 @@ export default function MissionPage() {
             locale={locale}
             onContinue={handleContinue}
             continueLabel={
-              phase === "complete" ? ar.complete.title : ar.discovery.continue
+              phase === "complete" ? dict.complete.title : dict.discovery.continue
             }
           />
         </Screen>
@@ -149,20 +150,20 @@ export default function MissionPage() {
               onClick={() => setShowReset(true)}
               className="touch-target shrink-0 text-sm text-zwita-ink/60 underline"
             >
-              {ar.reset.action}
+              {dict.reset.action}
             </button>
           </div>
         }
         footer={
           <PrimaryButton onClick={() => setMode("scanning")} data-testid="open-scanner">
-            {ar.mission.openScanner}
+            {dict.mission.openScanner}
           </PrimaryButton>
         }
       >
         {currentStation ? (
           <ClueCard clue={t(currentStation.clues[0] ?? currentStation.title, locale)} />
         ) : (
-          <ClueCard clue={ar.mission.scan} />
+          <ClueCard clue={dict.mission.scan} />
         )}
       </Screen>
 
@@ -186,6 +187,7 @@ function ResetDialog({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
+  const dict = useDict();
   return (
     <div
       role="dialog"
@@ -195,15 +197,15 @@ function ResetDialog({
     >
       <div className="w-full max-w-md rounded-3xl bg-zwita-white p-6">
         <h2 id="reset-title" className="text-xl font-extrabold">
-          {ar.reset.confirmTitle}
+          {dict.reset.confirmTitle}
         </h2>
-        <p className="mt-2 text-zwita-ink/80">{ar.reset.confirmBody}</p>
+        <p className="mt-2 text-zwita-ink/80">{dict.reset.confirmBody}</p>
         <div className="mt-5 space-y-2">
           <PrimaryButton onClick={onConfirm} data-testid="reset-confirm">
-            {ar.reset.confirm}
+            {dict.reset.confirm}
           </PrimaryButton>
           <PrimaryButton variant="secondary" onClick={onCancel}>
-            {ar.reset.cancel}
+            {dict.reset.cancel}
           </PrimaryButton>
         </div>
       </div>

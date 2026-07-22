@@ -2,7 +2,7 @@ import Image from "next/image";
 import type { Station } from "@/content/types";
 import type { Locale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/locale";
-import { ar } from "@/lib/i18n/dictionaries/ar";
+import { getDict } from "@/lib/i18n/dictionaries";
 import { PrimaryButton } from "./PrimaryButton";
 
 /**
@@ -22,6 +22,7 @@ export function DiscoveryCard({
   continueLabel: string;
 }) {
   const hero = station.images[0];
+  const dict = getDict(locale);
 
   return (
     <div className="space-y-5">
@@ -50,7 +51,7 @@ export function DiscoveryCard({
       {station.funFact ? (
         <div className="rounded-2xl bg-zwita-olive/10 p-4 ring-1 ring-zwita-olive/30">
           <p className="text-sm font-bold text-zwita-olive">
-            {ar.discovery.funFactLabel}
+            {dict.discovery.funFactLabel}
           </p>
           <p className="mt-1 text-zwita-ink/85">{t(station.funFact, locale)}</p>
         </div>
@@ -59,7 +60,7 @@ export function DiscoveryCard({
       {station.safetyNote ? (
         <div className="rounded-2xl bg-zwita-clay/10 p-4 ring-1 ring-zwita-clay/30">
           <p className="text-sm font-bold text-zwita-clay">
-            {ar.discovery.safetyLabel}
+            {dict.discovery.safetyLabel}
           </p>
           <p className="mt-1 text-zwita-ink/85">{t(station.safetyNote, locale)}</p>
         </div>

@@ -6,15 +6,23 @@ import type { ScannerAdapter, ScannerError } from "@/lib/scanner";
 import { SimulatedScannerAdapter } from "@/lib/scanner/simulated-adapter";
 import { PrimaryButton } from "./PrimaryButton";
 import { ManualCodeEntry } from "./ManualCodeEntry";
-import { ar } from "@/lib/i18n/dictionaries/ar";
+import { useDict } from "@/lib/i18n/useDict";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-const ERROR_MESSAGE: Record<ScannerError, string> = {
-  "permission-denied": ar.scanner.permissionDenied,
-  "no-camera": ar.scanner.noCamera,
-  "insecure-context": ar.scanner.insecure,
-  unsupported: ar.scanner.unsupported,
-  unknown: ar.scanner.cameraError,
-};
+function errorMessage(dict: Dictionary, error: ScannerError): string {
+  switch (error) {
+    case "permission-denied":
+      return dict.scanner.permissionDenied;
+    case "no-camera":
+      return dict.scanner.noCamera;
+    case "insecure-context":
+      return dict.scanner.insecure;
+    case "unsupported":
+      return dict.scanner.unsupported;
+    default:
+      return dict.scanner.cameraError;
+  }
+}
 
 export type SimulationPayload = { label: string; raw: string; testid?: string };
 
@@ -32,6 +40,7 @@ export function ScannerView({
   onClose: () => void;
   simulationPayloads?: SimulationPayload[];
 }) {
+  const dict = useDict();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const adapterRef = useRef<ScannerAdapter | null>(null);
   const [error, setError] = useState<ScannerError | null>(null);
@@ -73,12 +82,12 @@ export function ScannerView({
             playsInline
             muted
             autoPlay
-            aria-label={ar.mission.scan}
+            aria-label={dict.mission.scan}
           />
         ) : null}
         {simulated ? (
           <div className="flex h-full items-center justify-center p-4 text-center text-sm text-white/80">
-            {ar.scanner.simulateHint}
+            {dict.scanner.simulateHint}
           </div>
         ) : null}
       </div>
@@ -88,7 +97,7 @@ export function ScannerView({
           role="alert"
           className="rounded-2xl bg-zwita-clay/15 p-4 text-zwita-ink ring-1 ring-zwita-clay/40"
         >
-          {ERROR_MESSAGE[error]}
+          {errorMessage(dict, error)}
         </p>
       ) : null}
 
@@ -112,7 +121,7 @@ export function ScannerView({
       <ManualCodeEntry onSubmit={onResult} />
 
       <PrimaryButton variant="secondary" onClick={onClose}>
-        {ar.scanner.close}
+        {dict.scanner.close}
       </PrimaryButton>
     </div>
   );

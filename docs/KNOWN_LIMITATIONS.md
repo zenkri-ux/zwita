@@ -1,9 +1,19 @@
-# ZWITA — Known Limitations (Vertical Slice 1)
+# ZWITA — Known Limitations
 
-This slice delivers the walk-and-scan core loop end to end (welcome → setup →
-deterministic 3-station route → clue → scan → validate → discovery → complete),
-with local persistence, a Serwist PWA layer, and unit + e2e tests. The items
-below are deliberately deferred or constrained.
+The app delivers the walk-and-scan experience end to end:
+welcome (ZWITA + Mill hero) → setup (name + language + avatar) → game-rules
+screen → deterministic 3-station route → clue → scan → validate → discovery →
+complete, with local persistence, a Serwist PWA layer, and unit + e2e tests.
+The items below are deliberately deferred or constrained.
+
+## Localization
+
+- **UI chrome is fully translated in Arabic, French and English** and selectable
+  on the setup screen; the document direction flips (RTL for Arabic, LTR for
+  fr/en) via `LocaleSync`.
+- **Station/heritage content is not translated.** In French/English the UI is
+  localized but clues, titles and descriptions fall back to the Arabic
+  placeholder text (`t()` falls back to `ar`), pending validated translations.
 
 ## Content
 
@@ -13,7 +23,6 @@ below are deliberately deferred or constrained.
   approval (`AGENTS.md`: do not invent historical facts).
 - **QR tokens are development values** (`dev-*`). Real printed tokens must
   replace `qrToken` in `src/content/stations.ts` before launch.
-- Only **fr/en are stubbed** at the schema level; the shipped UI is Arabic only.
 
 ## Routes
 
@@ -78,9 +87,10 @@ Node is not installed on the development host; the toolchain was run inside a
   (route, payload, validate, score, migrate, completion).
 - **Production build** (`next build`): **pass** — 9 routes generated, Serwist
   service worker bundled to `/sw.js`.
-- **E2E** (`playwright test`, mobile-chrome, simulated scanner): **pass** — 4/4
-  (start, full 3-station completion, wrong-scan feedback, interrupted-game
-  restore) against a production `next start` server.
+- **E2E** (`playwright test`, mobile-chrome, simulated scanner): **pass** — 5/5
+  (start, full 3-station completion, wrong-vs-correct panel detection,
+  interrupted-game restore, and French/LTR language switch) against a production
+  `next start` server.
 
 The e2e run also caught and fixed two real defects: a `hydrate()`/`initSession()`
 race that could clobber a fresh session, and a `derivePhase` bug that treated a

@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ar } from "@/lib/i18n/dictionaries/ar";
+import { useDict } from "@/lib/i18n/useDict";
 
 /**
  * Non-blocking banner shown when the browser reports it is offline. The core
  * loop keeps working, so this only reassures — it never interrupts a mission.
  */
 export function OfflineBanner() {
+  const dict = useDict();
   const [offline, setOffline] = useState(false);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export function OfflineBanner() {
       role="status"
       className="bg-zwita-ink px-4 py-2 text-center text-sm text-zwita-white"
     >
-      {ar.offline.banner}
+      {dict.offline.banner}
     </div>
   );
 }

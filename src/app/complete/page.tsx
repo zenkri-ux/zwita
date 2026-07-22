@@ -4,19 +4,21 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGameStore } from "@/lib/store/gameStore";
 import { useHydratedGame } from "@/components/useHydratedGame";
+import { useDict } from "@/lib/i18n/useDict";
 import { Screen } from "@/components/Screen";
 import { PrimaryButton } from "@/components/PrimaryButton";
-import { ar } from "@/lib/i18n/dictionaries/ar";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-// Playful, non-historical completion titles keyed by score band.
-function finalTitle(score: number): string {
-  if (score >= 260) return "خبير المعصرة";
-  if (score >= 180) return "مستكشف ماهر";
-  return "زائر فضولي";
+// Playful, non-historical completion title keyed by score band.
+function finalTitle(score: number, dict: Dictionary): string {
+  if (score >= 260) return dict.titles.expert;
+  if (score >= 180) return dict.titles.skilled;
+  return dict.titles.curious;
 }
 
 export default function CompletePage() {
   const router = useRouter();
+  const dict = useDict();
   const { hydrated, state, phase } = useHydratedGame();
   const reset = useGameStore((s) => s.reset);
 
@@ -41,7 +43,7 @@ export default function CompletePage() {
           }}
           data-testid="restart"
         >
-          {ar.complete.restart}
+          {dict.complete.restart}
         </PrimaryButton>
       }
     >
@@ -50,17 +52,19 @@ export default function CompletePage() {
           {state.avatar || "🫒"}
         </p>
         <h1 className="mt-4 text-3xl font-black text-zwita-blue-dark" data-testid="complete-title">
-          {ar.complete.title}
+          {dict.complete.title}
         </h1>
-        <p className="mt-2 text-lg text-zwita-ink/80">{ar.complete.subtitle}</p>
+        <p className="mt-2 text-lg text-zwita-ink/80">{dict.complete.subtitle}</p>
 
         <dl className="mt-8 w-full max-w-xs space-y-3 text-lg">
           <div className="flex items-center justify-between rounded-2xl bg-white/70 px-5 py-3 ring-1 ring-black/5">
-            <dt className="font-semibold">{ar.complete.finalTitle}</dt>
-            <dd className="font-bold text-zwita-olive">{finalTitle(state.score)}</dd>
+            <dt className="font-semibold">{dict.complete.finalTitle}</dt>
+            <dd className="font-bold text-zwita-olive">
+              {finalTitle(state.score, dict)}
+            </dd>
           </div>
           <div className="flex items-center justify-between rounded-2xl bg-white/70 px-5 py-3 ring-1 ring-black/5">
-            <dt className="font-semibold">{ar.complete.scoreLabel}</dt>
+            <dt className="font-semibold">{dict.complete.scoreLabel}</dt>
             <dd className="font-bold">{state.score}</dd>
           </div>
         </dl>

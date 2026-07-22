@@ -1,10 +1,12 @@
-// Arabic UI chrome strings (the only shipped locale in the vertical slice).
-// Heritage/station content lives in src/content, not here.
+// Arabic UI chrome strings. Heritage/station content lives in src/content.
+// This is the reference shape for every locale (see fr.ts, en.ts).
 
 export const ar = {
   appName: "زويتة",
   welcome: {
-    tagline: "رحلة اكتشاف في معصرة الزيت التقليدية",
+    toZwita: "أهلًا بك في زويتة",
+    toMill: "رحلة اكتشاف داخل معصرة الزيت التقليدية بجربة",
+    tagline: "اتبع الألغاز، امسح الرموز، واكتشف أسرار المعصرة",
     start: "ابدأ",
   },
   setup: {
@@ -12,7 +14,33 @@ export const ar = {
     nicknameLabel: "اسمك في اللعبة",
     nicknamePlaceholder: "اكتب اسمًا",
     avatarLabel: "اختر رمزًا",
+    languageLabel: "اللغة",
     continue: "تابِع",
+  },
+  languages: {
+    ar: "العربية",
+    fr: "Français",
+    en: "English",
+  },
+  rules: {
+    title: "كيف تلعب",
+    intro: "ثلاث خطوات بسيطة لاكتشاف المعصرة:",
+    steps: [
+      {
+        title: "١. اقرأ اللغز",
+        body: "اقرأ اللغز بالعربية وابحث عن المحطة التي يصفها داخل المعصرة.",
+      },
+      {
+        title: "٢. امسح الرمز",
+        body: "عند المحطة، امسح رمز الـ QR الموجود قرب اللوحة التعريفية.",
+      },
+      {
+        title: "٣. اكتشف وتقدّم",
+        body: "إن كانت المحطة الصحيحة، تكتشف معلومات جديدة وينفتح اللغز التالي.",
+      },
+    ],
+    safety: "تنقّل بهدوء واحترس من الدرجات — لا داعي للركض.",
+    start: "لنبدأ الرحلة",
   },
   mission: {
     stepLabel: "المحطة",
@@ -58,6 +86,11 @@ export const ar = {
     finalTitle: "لقبك",
     restart: "ابدأ من جديد",
   },
+  titles: {
+    expert: "خبير المعصرة",
+    skilled: "مستكشف ماهر",
+    curious: "زائر فضولي",
+  },
   reset: {
     action: "إعادة الضبط",
     confirmTitle: "هل تريد البدء من جديد؟",
@@ -69,5 +102,3 @@ export const ar = {
     banner: "أنت غير متصل — يمكنك متابعة اللعب.",
   },
 } as const;
-
-export type Dictionary = typeof ar;

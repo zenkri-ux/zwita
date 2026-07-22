@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { PrimaryButton } from "./PrimaryButton";
-import { ar } from "@/lib/i18n/dictionaries/ar";
+import { useDict } from "@/lib/i18n/useDict";
 
 /**
  * Manual short-code entry. Always available as an alternative to the camera
@@ -14,6 +14,7 @@ export function ManualCodeEntry({
 }: {
   onSubmit: (raw: string) => void;
 }) {
+  const dict = useDict();
   const [value, setValue] = useState("");
 
   function handleSubmit(e: FormEvent) {
@@ -27,7 +28,7 @@ export function ManualCodeEntry({
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <label htmlFor="manual-code" className="block font-semibold">
-        {ar.mission.manualLabel}
+        {dict.mission.manualLabel}
       </label>
       <input
         id="manual-code"
@@ -36,12 +37,12 @@ export function ManualCodeEntry({
         inputMode="text"
         autoComplete="off"
         dir="ltr"
-        placeholder={ar.mission.manualPlaceholder}
+        placeholder={dict.mission.manualPlaceholder}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="touch-target w-full rounded-2xl border border-black/15 bg-white px-4 py-3 text-lg"
       />
-      <PrimaryButton type="submit">{ar.mission.submit}</PrimaryButton>
+      <PrimaryButton type="submit">{dict.mission.submit}</PrimaryButton>
     </form>
   );
 }
