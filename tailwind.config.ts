@@ -14,13 +14,30 @@ const config: Config = {
       colors: {
         zwita: {
           white: "var(--zwita-white)",
+          olive: "var(--zwita-olive)",
+          "olive-dark": "var(--zwita-olive-dark)",
+          "olive-deep": "var(--zwita-olive-deep)",
+          clay: "var(--zwita-clay)",
+          "clay-dark": "var(--zwita-clay-dark)",
+          amber: "var(--zwita-amber)",
+          "amber-dark": "var(--zwita-amber-dark)",
+          ink: "var(--zwita-ink)",
           blue: "var(--zwita-blue)",
           "blue-dark": "var(--zwita-blue-dark)",
-          olive: "var(--zwita-olive)",
-          clay: "var(--zwita-clay)",
-          amber: "var(--zwita-amber)",
-          ink: "var(--zwita-ink)",
         },
+      },
+      borderRadius: {
+        input: "var(--r-input)",
+        card: "var(--r-card)",
+        btn: "var(--r-btn)",
+        media: "var(--r-media)",
+        sheet: "var(--r-sheet)",
+      },
+      boxShadow: {
+        card: "var(--sh-card)",
+        lift: "var(--sh-lift)",
+        btn: "var(--sh-btn)",
+        sheet: "var(--sh-sheet)",
       },
       fontFamily: {
         // Self-hosted Arabic-first stack; system fallbacks avoid blocking fonts.

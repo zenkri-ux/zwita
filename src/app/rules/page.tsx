@@ -2,11 +2,16 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useGameStore } from "@/lib/store/gameStore";
 import { useHydratedGame } from "@/components/useHydratedGame";
 import { useDict } from "@/lib/i18n/useDict";
 import { Screen } from "@/components/Screen";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { CheckCircleIcon, DropIcon, ScanIcon } from "@/components/icons";
+
+// One icon per step, in the order the dictionary lists them.
+const STEP_ICONS = [DropIcon, ScanIcon, CheckCircleIcon];
 
 export default function RulesPage() {
   const router = useRouter();
@@ -35,26 +40,60 @@ export default function RulesPage() {
         </PrimaryButton>
       }
     >
-      <h1 className="text-3xl font-extrabold text-zwita-blue-dark">
+      <h1 className="text-[22px] font-black text-zwita-olive-dark">
         {dict.rules.title}
       </h1>
-      <p className="mt-2 text-zwita-ink/80">{dict.rules.intro}</p>
 
-      <ol className="mt-6 flex-1 space-y-4">
-        {dict.rules.steps.map((step) => (
-          <li
-            key={step.title}
-            className="rounded-2xl bg-white/70 p-5 ring-1 ring-black/5"
-          >
-            <h2 className="text-lg font-bold text-zwita-ink">{step.title}</h2>
-            <p className="mt-1 leading-relaxed text-zwita-ink/80">{step.body}</p>
-          </li>
-        ))}
+      {/* A real corridor of the mill, to set expectations before going in. */}
+      <div className="relative mt-4 h-[130px] overflow-hidden rounded-card">
+        <Image
+          src="/images/mill/extra/corridor-press.jpg"
+          alt=""
+          fill
+          sizes="(max-width: 640px) 100vw, 640px"
+          className="object-cover"
+          priority
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-transparent to-zwita-ink/55"
+        />
+      </div>
+
+      <p className="mt-4 text-[13.5px] text-zwita-ink/70">{dict.rules.intro}</p>
+
+      <ol className="mt-3 space-y-3">
+        {dict.rules.steps.map((step, i) => {
+          const Icon = STEP_ICONS[i] ?? DropIcon;
+          return (
+            <li
+              key={step.title}
+              className="flex items-start gap-3.5 rounded-card bg-white p-4 shadow-card"
+            >
+              <span className="flex h-10 w-10 flex-none items-center justify-center rounded-input bg-zwita-olive/10">
+                <Icon size={18} className="text-zwita-olive" />
+              </span>
+              <div>
+                <h2 className="text-[15.5px] font-extrabold text-zwita-ink">
+                  {step.title}
+                </h2>
+                <p className="mt-1 text-[13.5px] leading-relaxed text-zwita-ink/70">
+                  {step.body}
+                </p>
+              </div>
+            </li>
+          );
+        })}
       </ol>
 
-      <p className="mt-4 rounded-2xl bg-zwita-clay/10 p-4 text-sm text-zwita-ink/80 ring-1 ring-zwita-clay/30">
-        {dict.rules.safety}
-      </p>
+      <div className="mt-4 flex items-start gap-3 rounded-card bg-zwita-clay/10 px-4 py-3.5">
+        <span aria-hidden className="text-lg leading-none">
+          🚶
+        </span>
+        <p className="text-[13.5px] font-bold leading-relaxed text-zwita-clay-dark">
+          {dict.rules.safety}
+        </p>
+      </div>
     </Screen>
   );
 }

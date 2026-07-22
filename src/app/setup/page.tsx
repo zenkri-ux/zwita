@@ -7,10 +7,9 @@ import { useHydratedGame } from "@/components/useHydratedGame";
 import { useDict } from "@/lib/i18n/useDict";
 import { Screen } from "@/components/Screen";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { AvatarMark, AVATAR_IDS, type AvatarId } from "@/components/AvatarMark";
 import type { Locale } from "@/content/types";
 
-// Avatar symbols reflect the mill's world (olive, jar, door, dome, sun, key).
-const AVATARS = ["🫒", "🏺", "🚪", "🕌", "☀️", "🗝️"];
 const LOCALES: Locale[] = ["ar", "fr", "en"];
 
 export default function SetupPage() {
@@ -20,14 +19,16 @@ export default function SetupPage() {
   const setProfile = useGameStore((s) => s.setProfile);
 
   const [nickname, setNickname] = useState("");
-  const [avatar, setAvatar] = useState(AVATARS[0] ?? "🫒");
+  const [avatar, setAvatar] = useState<AvatarId>("leaf");
   const [locale, setLocale] = useState<Locale>("ar");
 
   // Prefill from any existing session (e.g. returning to edit before starting).
   useEffect(() => {
     if (!state) return;
     if (state.nickname) setNickname(state.nickname);
-    if (state.avatar) setAvatar(state.avatar);
+    if (AVATAR_IDS.includes(state.avatar as AvatarId)) {
+      setAvatar(state.avatar as AvatarId);
+    }
     setLocale(state.locale);
   }, [state]);
 
@@ -45,6 +46,7 @@ export default function SetupPage() {
     router.push("/rules");
   }
 
+  const fieldLabel = "mb-2 block text-[13px] font-bold text-zwita-ink/70";
   const canContinue = nickname.trim().length > 0;
 
   return (
@@ -59,12 +61,12 @@ export default function SetupPage() {
         </PrimaryButton>
       }
     >
-      <h1 className="text-3xl font-extrabold text-zwita-blue-dark">
+      <h1 className="text-[22px] font-black text-zwita-olive-dark">
         {dict.setup.title}
       </h1>
 
-      <div className="mt-6 space-y-2">
-        <label htmlFor="nickname" className="block font-semibold">
+      <div className="mt-6">
+        <label htmlFor="nickname" className={fieldLabel}>
           {dict.setup.nicknameLabel}
         </label>
         <input
@@ -76,14 +78,14 @@ export default function SetupPage() {
           placeholder={dict.setup.nicknamePlaceholder}
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
-          className="touch-target w-full rounded-2xl border border-black/15 bg-white px-4 py-3 text-lg"
+          className="min-h-[52px] w-full rounded-input border-[1.5px] border-zwita-ink/10 bg-white px-4 text-base text-zwita-ink"
           data-testid="nickname"
         />
       </div>
 
       <div className="mt-6">
-        <p className="mb-2 font-semibold">{dict.setup.languageLabel}</p>
-        <div className="grid grid-cols-3 gap-2">
+        <p className={fieldLabel}>{dict.setup.languageLabel}</p>
+        <div className="flex gap-2">
           {LOCALES.map((code) => {
             const selected = code === locale;
             return (
@@ -94,10 +96,10 @@ export default function SetupPage() {
                 onClick={() => setLocale(code)}
                 data-testid={`lang-${code}`}
                 className={[
-                  "touch-target rounded-2xl border px-2 py-3 text-base font-semibold",
+                  "touch-target flex-1 rounded-input border-[1.5px] px-2 py-3 text-[15px] font-bold transition-colors",
                   selected
-                    ? "border-zwita-blue bg-zwita-blue/10 ring-2 ring-zwita-blue"
-                    : "border-black/15 bg-white",
+                    ? "border-zwita-olive bg-zwita-olive/10 text-zwita-olive-deep"
+                    : "border-zwita-ink/10 bg-white text-zwita-ink/70",
                 ].join(" ")}
               >
                 {dict.languages[code]}
@@ -108,24 +110,26 @@ export default function SetupPage() {
       </div>
 
       <div className="mt-6">
-        <p className="mb-2 font-semibold">{dict.setup.avatarLabel}</p>
-        <div className="grid grid-cols-6 gap-2">
-          {AVATARS.map((symbol) => {
-            const selected = symbol === avatar;
+        <p className={fieldLabel}>{dict.setup.avatarLabel}</p>
+        <div className="flex flex-wrap gap-3">
+          {AVATAR_IDS.map((id) => {
+            const selected = id === avatar;
             return (
               <button
-                key={symbol}
+                key={id}
                 type="button"
                 aria-pressed={selected}
-                onClick={() => setAvatar(symbol)}
+                aria-label={id}
+                onClick={() => setAvatar(id)}
+                data-testid={`avatar-${id}`}
                 className={[
-                  "touch-target flex items-center justify-center rounded-2xl border text-2xl",
+                  "flex h-[68px] w-[68px] flex-col items-center justify-center gap-1.5 rounded-input border-[1.5px] transition-colors",
                   selected
-                    ? "border-zwita-blue bg-zwita-blue/10 ring-2 ring-zwita-blue"
-                    : "border-black/15 bg-white",
+                    ? "border-zwita-olive bg-zwita-olive/10"
+                    : "border-zwita-ink/10 bg-white",
                 ].join(" ")}
               >
-                <span aria-hidden>{symbol}</span>
+                <AvatarMark id={id} />
               </button>
             );
           })}

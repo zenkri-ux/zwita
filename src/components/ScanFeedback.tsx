@@ -2,26 +2,48 @@
 
 import type { ScanOutcome } from "@/lib/game/types";
 import { useDict } from "@/lib/i18n/useDict";
+import { CheckCircleIcon, QuestionIcon, RetryIcon, ScanIcon } from "./icons";
 
-// Correctness is conveyed by an icon + text + heading, never colour alone.
-const ICON: Record<Exclude<ScanOutcome, "correct">, string> = {
-  "wrong-station": "↻",
-  "already-completed": "✓",
-  "unknown-station": "?",
-  malformed: "!",
-};
+type NonCorrect = Exclude<ScanOutcome, "correct">;
 
-/** Playful, non-frightening feedback for a non-correct scan. */
+/**
+ * Playful, never-alarming feedback for a scan that did not advance the player.
+ * Each outcome gets its own tint, icon and wording — correctness is never
+ * signalled by colour alone.
+ */
 export function ScanFeedback({
   outcome,
+  onRetry,
 }: {
-  outcome: Exclude<ScanOutcome, "correct">;
+  outcome: NonCorrect;
+  onRetry?: () => void;
 }) {
   const dict = useDict();
-  const copy: Record<
-    Exclude<ScanOutcome, "correct">,
-    { title: string; body: string }
-  > = {
+
+  const style: Record<NonCorrect, { wrap: string; fg: string; Icon: typeof ScanIcon }> = {
+    "wrong-station": {
+      wrap: "bg-zwita-amber/10",
+      fg: "text-zwita-amber-dark",
+      Icon: RetryIcon,
+    },
+    "already-completed": {
+      wrap: "bg-zwita-olive/10",
+      fg: "text-zwita-olive-deep",
+      Icon: CheckCircleIcon,
+    },
+    "unknown-station": {
+      wrap: "bg-zwita-clay/10",
+      fg: "text-zwita-clay-dark",
+      Icon: QuestionIcon,
+    },
+    malformed: {
+      wrap: "bg-zwita-ink/5",
+      fg: "text-zwita-ink/70",
+      Icon: ScanIcon,
+    },
+  };
+
+  const copy: Record<NonCorrect, { title: string; body: string }> = {
     "wrong-station": {
       title: dict.feedback.wrongTitle,
       body: dict.feedback.wrongBody,
@@ -39,20 +61,30 @@ export function ScanFeedback({
       body: dict.feedback.malformedBody,
     },
   };
-  const info = copy[outcome];
+
+  const { wrap, fg, Icon } = style[outcome];
+  const { title, body } = copy[outcome];
+
   return (
     <div
       role="status"
       aria-live="polite"
-      className="rounded-2xl bg-zwita-amber/15 p-5 ring-1 ring-zwita-amber/40"
+      className={`animate-toast-in rounded-card p-4 shadow-card ${wrap}`}
     >
-      <p className="flex items-center gap-3 text-lg font-bold text-zwita-ink">
-        <span aria-hidden className="text-2xl">
-          {ICON[outcome]}
-        </span>
-        {info.title}
+      <p className={`flex items-center gap-2.5 text-[15.5px] font-extrabold ${fg}`}>
+        <Icon size={22} />
+        {title}
       </p>
-      <p className="mt-1 text-zwita-ink/80">{info.body}</p>
+      <p className="mt-1.5 text-[13.5px] leading-relaxed text-zwita-ink/60">{body}</p>
+      {onRetry ? (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="touch-target mt-3 w-full rounded-input bg-white/70 py-3 text-[13.5px] font-bold text-zwita-ink"
+        >
+          {dict.feedback.tryAgain}
+        </button>
+      ) : null}
     </div>
   );
 }

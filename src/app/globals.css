@@ -3,46 +3,97 @@
 @tailwind utilities;
 
 :root {
-  /* Mill visual language (AGENTS.md VISUAL DIRECTION). */
+  /* Mill visual language. The design system is olive-led: olive is the primary
+     action colour, amber highlights the active step, clay carries warnings. */
   --zwita-white: #f7f2e8;
+  --zwita-olive: #6f7938;
+  --zwita-olive-dark: #4e5a25; /* headings, splash surface */
+  --zwita-olive-deep: #4d5527; /* olive text sitting on an olive tint */
+  --zwita-clay: #b7794c;
+  --zwita-clay-dark: #8a5c37; /* clay text on a clay tint */
+  --zwita-amber: #d99846;
+  --zwita-amber-dark: #8a5c26; /* amber text on an amber tint */
+  --zwita-ink: #25221d;
+
+  /* Blue doors remain part of the mill, but the UI no longer leads with blue. */
   --zwita-blue: #0878c9;
   --zwita-blue-dark: #07598f;
-  --zwita-olive: #6f7938;
-  --zwita-clay: #b7794c;
-  --zwita-amber: #d99846;
-  --zwita-ink: #25221d;
+
+  /* Radii */
+  --r-input: 16px;
+  --r-card: 18px;
+  --r-btn: 18px;
+  --r-media: 22px;
+  --r-sheet: 26px;
+
+  /* Elevation */
+  --sh-card: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --sh-lift: 0 8px 24px rgba(37, 34, 29, 0.18);
+  --sh-btn: 0 6px 20px rgba(37, 34, 29, 0.25);
+  --sh-sheet: 0 -8px 24px rgba(0, 0, 0, 0.16);
 }
 
 @layer base {
   html {
     background-color: var(--zwita-white);
     color: var(--zwita-ink);
-    /* Respect notches in standalone/PWA mode. */
-    padding: env(safe-area-inset-top) env(safe-area-inset-right)
-      env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
   body {
     min-height: 100dvh;
-    /* Slightly larger, high-contrast body text stays legible in dim light. */
+    /* Comfortable body size + generous leading: Arabic has to stay readable in
+       the mill's dim underground light. */
     font-size: 1.05rem;
-    line-height: 1.7;
+    line-height: 1.75;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Visible focus indicators for keyboard/switch users. */
   :focus-visible {
-    outline: 3px solid var(--zwita-blue-dark);
+    outline: 3px solid var(--zwita-olive-dark);
     outline-offset: 2px;
   }
 }
 
 @layer utilities {
-  /* Minimum 44x44 touch target helper. */
+  /* Minimum 44x44 touch target. */
   .touch-target {
     min-width: 44px;
     min-height: 44px;
   }
+
+  /* Safe-area helpers. Applied per-region rather than on <html> so full-bleed
+     hero screens can still reach the edges of the display. */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Sticky action bar that fades the scrolling content out beneath it. */
+  .action-bar {
+    background: linear-gradient(180deg, rgba(247, 242, 232, 0), var(--zwita-white) 30%);
+  }
+}
+
+/* Gentle entrance for feedback toasts and discovery reveals. */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-toast-in {
+  animation: toastIn 0.25s ease-out;
 }
 
 /* Honour reduced-motion: disable non-essential animation globally. */

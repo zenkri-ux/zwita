@@ -4,6 +4,9 @@ import type { Dictionary } from "./types";
 // until validated translations exist (see KNOWN_LIMITATIONS).
 export const fr: Dictionary = {
   appName: "ZWITA",
+  splash: {
+    loading: "Préparation…",
+  },
   welcome: {
     toZwita: "Bienvenue sur ZWITA",
     toMill: "Une exploration du moulin à huile d'olive traditionnel de Djerba",
@@ -56,6 +59,7 @@ export const fr: Dictionary = {
     close: "Fermer",
   },
   feedback: {
+    tryAgain: "Réessayer",
     correctTitle: "Bravo ! Vous l'avez trouvée",
     wrongTitle: "Ce n'est pas cette station",
     wrongBody: "Pas de souci, essayez une autre station à proximité.",
@@ -67,6 +71,8 @@ export const fr: Dictionary = {
     malformedBody: "Réessayez ou saisissez le code manuellement.",
   },
   scanner: {
+    title: "Scanner le code de la station",
+    hint: "Visez le code QR situé près du panneau",
     cameraError: "Impossible d'activer la caméra",
     permissionDenied: "Accès caméra refusé. Vous pouvez saisir le code manuellement.",
     noCamera: "Aucune caméra disponible. Utilisez la saisie manuelle.",
@@ -80,12 +86,20 @@ export const fr: Dictionary = {
     safetyLabel: "Attention",
     continue: "Continuer",
   },
+  progressOverview: {
+    title: "Votre parcours",
+    done: "Découverte",
+    current: "Station actuelle",
+    upcoming: "Pas encore atteinte",
+  },
   complete: {
     title: "Parcours terminé !",
     subtitle: "Merci d'avoir exploré le moulin",
     scoreLabel: "Vos points",
     finalTitle: "Votre titre",
     restart: "Recommencer",
+    levelLabel: "Niveau",
+    badgeLabel: "Badge",
   },
   titles: {
     expert: "Expert du moulin",
@@ -100,6 +114,8 @@ export const fr: Dictionary = {
     cancel: "Annuler",
   },
   offline: {
+    title: "Vous êtes hors ligne",
+    body: "Vous pouvez continuer à jouer — votre progression est enregistrée sur votre téléphone.",
     banner: "Vous êtes hors ligne — vous pouvez continuer à jouer.",
   },
 };

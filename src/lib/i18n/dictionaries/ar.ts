@@ -3,6 +3,9 @@
 
 export const ar = {
   appName: "زويتة",
+  splash: {
+    loading: "جارٍ التحضير…",
+  },
   welcome: {
     toZwita: "أهلًا بك في زويتة",
     toMill: "رحلة اكتشاف داخل معصرة الزيت التقليدية بجربة",
@@ -55,6 +58,7 @@ export const ar = {
     close: "إغلاق",
   },
   feedback: {
+    tryAgain: "حاوِل مرة أخرى",
     correctTitle: "أحسنت! وجدتَها",
     wrongTitle: "ليست هذه المحطة",
     wrongBody: "لا بأس، جرِّب محطة أخرى قريبة.",
@@ -66,6 +70,8 @@ export const ar = {
     malformedBody: "أعِد المحاولة أو أدخِل الرمز يدويًا.",
   },
   scanner: {
+    title: "امسح رمز المحطة",
+    hint: "وجّه الكاميرا نحو الرمز الموجود قرب اللوحة",
     cameraError: "تعذّر تشغيل الكاميرا",
     permissionDenied: "لم يُسمح باستخدام الكاميرا. يمكنك إدخال الرمز يدويًا.",
     noCamera: "لا توجد كاميرا متاحة. استخدم الإدخال اليدوي.",
@@ -79,12 +85,20 @@ export const ar = {
     safetyLabel: "تنبيه",
     continue: "متابعة",
   },
+  progressOverview: {
+    title: "مسار الرحلة",
+    done: "تم الاكتشاف",
+    current: "محطتك الحالية",
+    upcoming: "لم تصل بعد",
+  },
   complete: {
     title: "أكملتَ الرحلة!",
     subtitle: "شكرًا لاكتشافك المعصرة",
     scoreLabel: "نقاطك",
     finalTitle: "لقبك",
     restart: "ابدأ من جديد",
+    levelLabel: "المستوى",
+    badgeLabel: "الشارة",
   },
   titles: {
     expert: "خبير المعصرة",
@@ -99,6 +113,8 @@ export const ar = {
     cancel: "إلغاء",
   },
   offline: {
+    title: "أنت غير متصل",
+    body: "يمكنك متابعة اللعب — تقدّمك محفوظ على هاتفك.",
     banner: "أنت غير متصل — يمكنك متابعة اللعب.",
   },
 } as const;

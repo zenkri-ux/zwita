@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useGameStore } from "@/lib/store/gameStore";
 import { useHydratedGame } from "@/components/useHydratedGame";
+import { useDict } from "@/lib/i18n/useDict";
 import { Screen } from "@/components/Screen";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { ClueCard } from "@/components/ClueCard";
@@ -12,14 +14,14 @@ import { ScannerView, type SimulationPayload } from "@/components/ScannerView";
 import { DiscoveryCard } from "@/components/DiscoveryCard";
 import { ScanFeedback } from "@/components/ScanFeedback";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { BackIcon, CheckCircleIcon, ProgressIcon, ScanIcon } from "@/components/icons";
 import { getStation, scannableStations } from "@/content/stations";
 import { buildScanUrl } from "@/lib/qr/payload";
 import type { Station } from "@/content/types";
 import type { ScanOutcome } from "@/lib/game/types";
 import { t } from "@/lib/i18n/locale";
-import { useDict } from "@/lib/i18n/useDict";
 
-type Mode = "clue" | "scanning" | "discovery";
+type Mode = "clue" | "scanning" | "discovery" | "progress";
 
 export default function MissionPage() {
   const router = useRouter();
@@ -66,11 +68,9 @@ export default function MissionPage() {
     // If that was the last station, the guard effect routes to /complete.
   }, []);
 
-  // Dev/e2e simulation buttons for the current step. They emit exactly what a
-  // printed QR contains (a <baseUrl>/q/<code> URL).
+  // Dev/e2e simulation buttons emit exactly what a printed QR contains.
   const simulationPayloads = useMemo<SimulationPayload[]>(() => {
     if (!currentStation?.scanCode) return [];
-    // Any other scannable plaque stands in for "wrong station".
     const wrong = scannableStations.find((s) => s.id !== currentStation.id);
     const payloads: SimulationPayload[] = [
       {
@@ -96,35 +96,126 @@ export default function MissionPage() {
 
   const locale = state.locale;
   const total = state.stationIds.length;
-  const stepLabel = `${dict.mission.stepLabel} ${Math.min(state.currentIndex + 1, total)} ${dict.mission.of} ${total}`;
+  const step = Math.min(state.currentIndex + 1, total);
+  const stepLabel = `${dict.mission.stepLabel} ${step} ${dict.mission.of} ${total}`;
 
-  // Discovery screen (also used for the final station before /complete).
-  if (mode === "discovery" && discovered) {
+  const progress = (
+    <ProgressPath
+      total={total}
+      currentIndex={state.currentIndex}
+      label={stepLabel}
+      caption={dict.progressOverview.title}
+    />
+  );
+
+  // --- Progress overview -------------------------------------------------
+  if (mode === "progress") {
     return (
       <>
         <OfflineBanner />
-        <Screen header={<ProgressPath total={total} currentIndex={state.currentIndex} label={stepLabel} />}>
-          <DiscoveryCard
-            station={discovered}
-            locale={locale}
-            onContinue={handleContinue}
-            continueLabel={
-              phase === "complete" ? dict.complete.title : dict.discovery.continue
-            }
-          />
+        <Screen>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMode("clue")}
+              aria-label={dict.mission.close}
+              data-testid="progress-close"
+              className="flex h-10 w-10 items-center justify-center rounded-input bg-zwita-olive/10"
+            >
+              <BackIcon size={16} className="text-zwita-olive-dark rtl:rotate-180" />
+            </button>
+            <h1 className="text-[19px] font-black text-zwita-olive-dark">
+              {dict.progressOverview.title}
+            </h1>
+          </div>
+
+          <ul className="mt-4 space-y-2.5">
+            {state.stationIds.map((id, index) => {
+              const station = getStation(id);
+              const done = state.completedStationIds.includes(id);
+              const active = index === state.currentIndex;
+              const thumb = station?.images[0];
+              const stateLabel = done
+                ? dict.progressOverview.done
+                : active
+                  ? dict.progressOverview.current
+                  : dict.progressOverview.upcoming;
+              return (
+                <li
+                  key={id}
+                  className="flex items-center gap-3 rounded-card bg-white p-2.5 shadow-card"
+                >
+                  <div className="relative h-[52px] w-[52px] flex-none overflow-hidden rounded-input bg-zwita-ink/5">
+                    {thumb ? (
+                      <Image
+                        src={thumb.src}
+                        alt=""
+                        fill
+                        sizes="52px"
+                        className={done || active ? "object-cover" : "object-cover opacity-40"}
+                      />
+                    ) : null}
+                    <span
+                      className={[
+                        "absolute bottom-0.5 end-0.5 flex h-5 w-5 items-center justify-center rounded-[7px]",
+                        done
+                          ? "bg-zwita-olive"
+                          : active
+                            ? "bg-zwita-amber"
+                            : "bg-zwita-ink/30",
+                      ].join(" ")}
+                    >
+                      {done ? <CheckCircleIcon size={12} className="text-white" /> : null}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[14.5px] font-extrabold text-zwita-ink">
+                      {/* Undiscovered stations stay secret — that is the game. */}
+                      {done || active ? t(station?.title ?? { ar: "…" }, locale) : "؟؟؟"}
+                    </p>
+                    <p className="mt-0.5 text-[11.5px] text-zwita-ink/50">{stateLabel}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </Screen>
       </>
     );
   }
 
-  // Scanner screen.
+  // --- Discovery (also used for the final station before /complete) -------
+  if (mode === "discovery" && discovered) {
+    return (
+      <>
+        <OfflineBanner />
+        <Screen header={progress}>
+          <div className="mt-4">
+            <DiscoveryCard
+              station={discovered}
+              locale={locale}
+              onContinue={handleContinue}
+              continueLabel={
+                phase === "complete" ? dict.complete.title : dict.discovery.continue
+              }
+              successLabel={dict.feedback.correctTitle}
+            />
+          </div>
+        </Screen>
+      </>
+    );
+  }
+
+  // --- Scanner -----------------------------------------------------------
   if (mode === "scanning") {
     return (
       <>
         <OfflineBanner />
-        <Screen header={<ProgressPath total={total} currentIndex={state.currentIndex} label={stepLabel} />}>
-          <div className="space-y-4">
-            {feedback ? <ScanFeedback outcome={feedback} /> : null}
+        <Screen header={progress}>
+          <div className="mt-4 space-y-4">
+            {feedback ? (
+              <ScanFeedback outcome={feedback} onRetry={() => setFeedback(null)} />
+            ) : null}
             <ScannerView
               onResult={handleResult}
               onClose={() => {
@@ -139,38 +230,53 @@ export default function MissionPage() {
     );
   }
 
-  // Clue screen (default).
+  // --- Clue (default) ----------------------------------------------------
   return (
     <>
       <OfflineBanner />
       <Screen
         header={
-          <div className="flex items-center justify-between gap-3">
-            <ProgressPath total={total} currentIndex={state.currentIndex} label={stepLabel} />
+          <div className="flex items-center gap-3">
+            {progress}
             <button
               type="button"
-              onClick={() => setShowReset(true)}
-              className="touch-target shrink-0 text-sm text-zwita-ink/60 underline"
+              onClick={() => setMode("progress")}
+              aria-label={dict.progressOverview.title}
+              data-testid="open-progress"
+              className="flex h-11 w-11 flex-none items-center justify-center rounded-input bg-zwita-olive/10"
             >
-              {dict.reset.action}
+              <ProgressIcon size={18} className="text-zwita-ink/40" />
             </button>
           </div>
         }
         footer={
-          <PrimaryButton onClick={() => setMode("scanning")} data-testid="open-scanner">
-            {dict.mission.openScanner}
-          </PrimaryButton>
+          <>
+            <PrimaryButton onClick={() => setMode("scanning")} data-testid="open-scanner">
+              <ScanIcon size={20} />
+              {dict.mission.openScanner}
+            </PrimaryButton>
+            <button
+              type="button"
+              onClick={() => setShowReset(true)}
+              className="touch-target mt-1 w-full text-xs text-zwita-ink/40 underline"
+            >
+              {dict.reset.action}
+            </button>
+          </>
         }
       >
         {currentStation ? (
-          <ClueCard clue={t(currentStation.clues[0] ?? currentStation.title, locale)} />
+          <ClueCard
+            clue={t(currentStation.clues[0] ?? currentStation.title, locale)}
+            eyebrow={`${dict.mission.stepLabel} ${step}`}
+          />
         ) : (
           <ClueCard clue={dict.mission.scan} />
         )}
       </Screen>
 
       {showReset ? (
-        <ResetDialog
+        <ResetSheet
           onCancel={() => setShowReset(false)}
           onConfirm={() => {
             reset();
@@ -182,7 +288,8 @@ export default function MissionPage() {
   );
 }
 
-function ResetDialog({
+/** Bottom sheet, per the design's reset-confirmation pattern. */
+function ResetSheet({
   onCancel,
   onConfirm,
 }: {
@@ -195,19 +302,31 @@ function ResetDialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby="reset-title"
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-end bg-black/40"
     >
-      <div className="w-full max-w-md rounded-3xl bg-zwita-white p-6">
-        <h2 id="reset-title" className="text-xl font-extrabold">
+      <div className="safe-bottom w-full rounded-t-sheet bg-zwita-white px-5 pb-7 pt-5 shadow-sheet">
+        <div aria-hidden className="mx-auto mb-4 h-[5px] w-10 rounded-full bg-zwita-ink/15" />
+        <h2 id="reset-title" className="text-lg font-black text-zwita-ink">
           {dict.reset.confirmTitle}
         </h2>
-        <p className="mt-2 text-zwita-ink/80">{dict.reset.confirmBody}</p>
-        <div className="mt-5 space-y-2">
-          <PrimaryButton onClick={onConfirm} data-testid="reset-confirm">
-            {dict.reset.confirm}
-          </PrimaryButton>
-          <PrimaryButton variant="secondary" onClick={onCancel}>
+        <p className="mt-2 text-[13.5px] leading-[1.7] text-zwita-ink/70">
+          {dict.reset.confirmBody}
+        </p>
+        <div className="mt-5 flex gap-2.5">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="min-h-[50px] flex-1 rounded-input border-[1.5px] border-zwita-ink/15 text-sm font-bold text-zwita-ink"
+          >
             {dict.reset.cancel}
+          </button>
+          <PrimaryButton
+            variant="danger"
+            onClick={onConfirm}
+            data-testid="reset-confirm"
+            className="flex-1 text-sm"
+          >
+            {dict.reset.confirm}
           </PrimaryButton>
         </div>
       </div>

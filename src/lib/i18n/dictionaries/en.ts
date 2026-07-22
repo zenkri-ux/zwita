@@ -4,6 +4,9 @@ import type { Dictionary } from "./types";
 // until validated translations exist (see KNOWN_LIMITATIONS).
 export const en: Dictionary = {
   appName: "ZWITA",
+  splash: {
+    loading: "Getting ready…",
+  },
   welcome: {
     toZwita: "Welcome to ZWITA",
     toMill: "An exploration of Djerba's traditional olive-oil mill",
@@ -56,6 +59,7 @@ export const en: Dictionary = {
     close: "Close",
   },
   feedback: {
+    tryAgain: "Try again",
     correctTitle: "Well done! You found it",
     wrongTitle: "Not this station",
     wrongBody: "No worries, try another nearby station.",
@@ -67,6 +71,8 @@ export const en: Dictionary = {
     malformedBody: "Try again or enter the code manually.",
   },
   scanner: {
+    title: "Scan the station code",
+    hint: "Point the camera at the QR code beside the panel",
     cameraError: "Couldn't start the camera",
     permissionDenied: "Camera access denied. You can enter the code manually.",
     noCamera: "No camera available. Use manual entry.",
@@ -80,12 +86,20 @@ export const en: Dictionary = {
     safetyLabel: "Note",
     continue: "Continue",
   },
+  progressOverview: {
+    title: "Your journey",
+    done: "Discovered",
+    current: "Current station",
+    upcoming: "Not reached yet",
+  },
   complete: {
     title: "Journey complete!",
     subtitle: "Thanks for exploring the mill",
     scoreLabel: "Your points",
     finalTitle: "Your title",
     restart: "Start again",
+    levelLabel: "Level",
+    badgeLabel: "Badge",
   },
   titles: {
     expert: "Mill Expert",
@@ -100,6 +114,8 @@ export const en: Dictionary = {
     cancel: "Cancel",
   },
   offline: {
+    title: "You are offline",
+    body: "You can keep playing — your progress is saved on your phone.",
     banner: "You're offline — you can keep playing.",
   },
 };

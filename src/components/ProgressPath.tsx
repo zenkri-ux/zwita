@@ -1,20 +1,28 @@
 /**
- * Compact progress indicator for the route. Communicates state with shape + a
- * text label, not colour alone (accessibility).
+ * Compact progress bars for the route: olive = discovered, amber = where you
+ * are now, neutral = still ahead. State is also announced in the text label, so
+ * progress is never conveyed by colour alone.
  */
 export function ProgressPath({
   total,
   currentIndex,
   label,
+  caption,
 }: {
   total: number;
   currentIndex: number;
   label: string;
+  caption?: string;
 }) {
   return (
-    <div>
-      <p className="mb-2 text-sm font-semibold text-zwita-ink/70">{label}</p>
-      <ol className="flex gap-2" aria-hidden={false}>
+    <div className="w-full">
+      <div className="mb-2">
+        {caption ? (
+          <p className="text-xs font-bold text-zwita-ink/50">{caption}</p>
+        ) : null}
+        <p className="text-[13px] font-extrabold text-zwita-olive-dark">{label}</p>
+      </div>
+      <ol className="flex gap-1.5">
         {Array.from({ length: total }).map((_, i) => {
           const done = i < currentIndex;
           const active = i === currentIndex;
@@ -22,12 +30,12 @@ export function ProgressPath({
             <li
               key={i}
               className={[
-                "h-2.5 flex-1 rounded-full",
+                "h-2 flex-1 rounded-full",
                 done
                   ? "bg-zwita-olive"
                   : active
                     ? "bg-zwita-amber"
-                    : "bg-black/10",
+                    : "bg-zwita-ink/15",
               ].join(" ")}
             />
           );
