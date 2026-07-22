@@ -53,7 +53,7 @@ export default function CompletePage() {
         className="absolute inset-0 bg-[linear-gradient(180deg,rgba(37,34,29,0.25)_0%,rgba(37,34,29,0.12)_30%,rgba(37,34,29,0.72)_68%,rgba(37,34,29,0.94)_100%)]"
       />
 
-      <div className="safe-top safe-x safe-bottom relative flex flex-1 flex-col items-center justify-end px-6 pb-8 pt-6">
+      <div className="pad-x pad-top pad-bottom relative flex flex-1 flex-col items-center justify-end">
         <span className="mb-3 flex h-[88px] w-[88px] items-center justify-center rounded-full bg-zwita-amber shadow-lift">
           <DropIcon size={38} filled className="text-zwita-white" />
         </span>

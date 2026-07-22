@@ -15,6 +15,7 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 // simply stays on the photograph — never a black or broken hero.
 const WELCOME_VIDEO = "/videos/welcome-bg.mp4";
 const WELCOME_POSTER = "/images/mill/exterior/exterior-wide.jpg";
+const BRAND_LOGO = "/images/brand/logo-zwita.png";
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -67,24 +68,45 @@ export default function WelcomePage() {
             aria-hidden
           />
         ) : null}
+        {/* The scrim must stay dark *behind the wording* and only turn to
+            limewash at the very bottom, under the button. Fading to cream too
+            early left white Arabic sitting on a pale background — unreadable,
+            and worst of all in the mill's dim light. */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(37,34,29,0.15)_0%,rgba(37,34,29,0.35)_55%,var(--zwita-white)_92%)]"
+          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(37,34,29,0.18)_0%,rgba(37,34,29,0.32)_38%,rgba(37,34,29,0.68)_72%,rgba(37,34,29,0.74)_88%,var(--zwita-white)_100%)]"
         />
 
-        <div className="safe-top safe-x relative flex flex-1 flex-col items-center justify-end px-5 pb-4 text-center">
+        {/* Wordmark, top-centred over the photograph. The drop shadow lifts the
+            dark-green calligraphy off the image without putting a box behind
+            it, so the logo keeps its transparent edge. */}
+        <div className="pad-x pad-top relative flex justify-center">
+          {/* Box matches the trimmed artwork's 2.14:1 ratio so it fills it. */}
+          <div className="relative h-[112px] w-[240px]">
+            <Image
+              src={BRAND_LOGO}
+              alt={dict.appName}
+              fill
+              sizes="240px"
+              className="object-contain [filter:drop-shadow(0_2px_10px_rgba(0,0,0,0.45))]"
+              priority
+            />
+          </div>
+        </div>
+
+        <div className="pad-x relative flex flex-1 flex-col items-center justify-end pb-4 text-center">
           <h1 className="text-[34px] font-black text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
             {dict.welcome.toZwita}
           </h1>
           <p className="mt-2.5 max-w-[270px] text-lg font-bold leading-relaxed text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.3)]">
             {dict.welcome.toMill}
           </p>
-          <p className="mb-7 mt-2.5 max-w-[250px] text-sm leading-[1.7] text-white/80">
+          <p className="mb-7 mt-2.5 max-w-[250px] text-sm leading-[1.7] text-white/90 [text-shadow:0_1px_6px_rgba(0,0,0,0.45)]">
             {dict.welcome.tagline}
           </p>
         </div>
 
-        <div className="safe-bottom safe-x relative px-5 pb-6">
+        <div className="pad-x pad-bottom relative">
           <PrimaryButton
             onClick={handleStart}
             disabled={!hydrated}

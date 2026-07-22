@@ -84,7 +84,7 @@ export const fr: Dictionary = {
   discovery: {
     funFactLabel: "Le saviez-vous",
     safetyLabel: "Attention",
-    continue: "Continuer",
+    continue: "Énigme suivante",
   },
   progressOverview: {
     title: "Votre parcours",

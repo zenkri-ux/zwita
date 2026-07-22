@@ -42,9 +42,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl" className={cairo.variable}>
-      <body className="font-sans">
+      {/* The app is phone-first. On wider screens it stays a single centred
+          column at a comfortable reading measure rather than stretching, and
+          the surrounding area darkens slightly so the column reads as the
+          deliberate shape of the app instead of an unfinished layout. */}
+      <body className="font-sans sm:bg-zwita-olive-dark/10">
         <LocaleSync />
-        {children}
+        <div className="mx-auto w-full max-w-[480px] bg-zwita-white sm:min-h-[100dvh] sm:shadow-lift">
+          {children}
+        </div>
       </body>
     </html>
   );

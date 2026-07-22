@@ -304,7 +304,7 @@ function ResetSheet({
       aria-labelledby="reset-title"
       className="fixed inset-0 z-50 flex items-end bg-black/40"
     >
-      <div className="safe-bottom w-full rounded-t-sheet bg-zwita-white px-5 pb-7 pt-5 shadow-sheet">
+      <div className="pad-x pad-bottom w-full rounded-t-sheet bg-zwita-white pt-5 shadow-sheet">
         <div aria-hidden className="mx-auto mb-4 h-[5px] w-10 rounded-full bg-zwita-ink/15" />
         <h2 id="reset-title" className="text-lg font-black text-zwita-ink">
           {dict.reset.confirmTitle}

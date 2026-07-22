@@ -22,11 +22,25 @@ test("starts a game and reaches the first clue", async ({ page }) => {
 });
 
 test("completes the full eight-station route", async ({ page }) => {
+  // Walking all eight stations is three screen transitions per station; it is
+  // legitimately longer than the default budget, so give it room rather than
+  // letting a slow run masquerade as a failure.
+  test.setTimeout(120_000);
   await startGame(page);
   for (let step = 0; step < STATIONS_PER_ROUTE; step += 1) {
     await page.getByTestId("open-scanner").click();
     await page.getByTestId("sim-correct").click();
-    await page.getByTestId("discovery-continue").click();
+
+    // Wait for each transition rather than firing eight clicks blind: without
+    // this the loop can run ahead of a re-render, land a click on a screen that
+    // is on its way out, and desynchronise the whole run.
+    const cont = page.getByTestId("discovery-continue");
+    await expect(cont).toBeVisible();
+    await cont.click();
+
+    if (step < STATIONS_PER_ROUTE - 1) {
+      await expect(page.getByTestId("open-scanner")).toBeVisible();
+    }
   }
   await expect(page).toHaveURL(/\/complete/);
   await expect(page.getByTestId("complete-title")).toBeVisible();

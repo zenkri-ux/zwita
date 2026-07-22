@@ -99,6 +99,7 @@ export default function ScanCodePage({ params }: { params: { code: string } }) {
             continueLabel={
               phase === "complete" ? dict.complete.title : dict.discovery.continue
             }
+            successLabel={dict.feedback.correctTitle}
           />
         </Screen>
       </>

@@ -69,10 +69,18 @@ const escapeXml = (value) =>
   );
 
 /**
- * Wrap a bare QR SVG in a labelled card: QR on top, Arabic + French station
- * name below, then the short code in a box (or a "scan to start" line for the
- * entry code). The QR itself stays pure black-on-white — colouring it would
- * only hurt scan reliability.
+ * Wrap a bare QR SVG with nothing but the short manual-entry code beneath it.
+ *
+ * The plaques stay deliberately bare: the station name is already printed on
+ * the physical panel next to the code, so repeating it would be noise. The code
+ * is kept because it is the visitor's fallback when scanning fails. The entry
+ * QR has no code and therefore renders as a plain square.
+ *
+ * Which file belongs on which plaque is identified by the file name and the
+ * contact sheet, not by text on the sticker.
+ *
+ * The QR stays pure black-on-white — styling it would only hurt scan
+ * reliability.
  */
 function labelledSvg(qrSvg, entry) {
   // The qrcode lib emits `viewBox="0 0 N N"`; re-embed its content as a nested
@@ -84,25 +92,18 @@ function labelledSvg(qrSvg, entry) {
   const PAD = 48;
   const qrSize = W - PAD * 2;
 
-  let y = PAD + qrSize + 76; // baseline of the Arabic name
-  const arY = y;
-  y += 54;
-  const frY = y;
-  y += 42;
-  const boxY = y;
+  const boxY = PAD + qrSize + 40;
   const boxH = 118;
-  y = boxY + boxH + 38;
-  const urlY = y;
-  const H = urlY + PAD;
+  const H = entry.code ? boxY + boxH + PAD : PAD + qrSize + PAD;
 
   const codeBlock = entry.code
     ? `  <rect x="${PAD}" y="${boxY}" width="${W - PAD * 2}" height="${boxH}" rx="20"
         fill="#F7F2E8" stroke="#B7794C" stroke-width="3"/>
   <text x="${W / 2}" y="${boxY + 78}" text-anchor="middle" font-size="72"
         font-weight="700" letter-spacing="10" fill="#25221D"
-        font-family="ui-monospace, 'Courier New', monospace">${escapeXml(entry.code)}</text>`
-    : `  <text x="${W / 2}" y="${boxY + 78}" text-anchor="middle" font-size="46"
-        font-weight="700" fill="#0878C9">${escapeXml(entry.cta ?? "")}</text>`;
+        font-family="ui-monospace, 'Courier New', monospace">${escapeXml(entry.code)}</text>
+`
+    : "";
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"
      viewBox="0 0 ${W} ${H}" font-family="system-ui, 'Segoe UI', Tahoma, Arial, sans-serif">
@@ -110,23 +111,21 @@ function labelledSvg(qrSvg, entry) {
   <svg x="${PAD}" y="${PAD}" width="${qrSize}" height="${qrSize}" viewBox="${viewBox}">
 ${inner}
   </svg>
-  <text x="${W / 2}" y="${arY}" text-anchor="middle" font-size="60" font-weight="700"
-        fill="#25221D" direction="rtl">${escapeXml(entry.ar)}</text>
-  <text x="${W / 2}" y="${frY}" text-anchor="middle" font-size="34"
-        fill="#6F7938">${escapeXml(entry.fr)}</text>
-${codeBlock}
-  <text x="${W / 2}" y="${urlY}" text-anchor="middle" font-size="22"
-        fill="#8a837b">${escapeXml(entry.url)}</text>
-</svg>
+${codeBlock}</svg>
 `;
 }
 
 function card(entry) {
-  // The SVG already carries the name + code, so the sheet only adds the file
-  // name — what you need when matching a printout to a plaque.
+  // The printed sticker stays bare, so the sheet carries the identification:
+  // station name, file name and code — everything needed to match a printout
+  // to the right plaque before sticking it on.
   return `    <figure class="card">
       <img src="./${escapeXml(entry.file)}" alt="QR ${escapeXml(entry.fr)}" />
-      <figcaption>${escapeXml(entry.file)}</figcaption>
+      <figcaption>
+        <strong>${escapeXml(entry.ar)}</strong>
+        <span>${escapeXml(entry.fr)}</span>
+        <span class="meta">${escapeXml(entry.file)}${entry.code ? ` · ${escapeXml(entry.code)}` : ""}</span>
+      </figcaption>
     </figure>`;
 }
 
@@ -143,7 +142,10 @@ function sheet(entries) {
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
   .card { margin: 0; padding: 12px; background: #fff; border: 1px solid #ddd8cc; border-radius: 12px; text-align: center; break-inside: avoid; }
   .card img { width: 100%; height: auto; }
-  figcaption { margin-top: 8px; font-size: .75rem; color: #8a837b; font-family: ui-monospace, monospace; }
+  figcaption { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+  figcaption strong { font-size: 1.05rem; }
+  figcaption span { font-size: .8rem; color: #6F7938; }
+  figcaption .meta { font-size: .7rem; color: #8a837b; font-family: ui-monospace, monospace; }
   @media print { body { background: #fff; margin: 0; } .card { border-color: #999; } }
 </style>
 </head>
@@ -175,7 +177,6 @@ async function main() {
     ar: "امسح لتبدأ الرحلة",
     fr: "Entrée — plaque Histoire",
     code: null,
-    cta: "ZWITA — زويتة",
   });
 
   // 2. One QR per physical plaque.

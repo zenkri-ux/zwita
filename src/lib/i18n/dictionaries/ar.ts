@@ -83,7 +83,7 @@ export const ar = {
   discovery: {
     funFactLabel: "معلومة",
     safetyLabel: "تنبيه",
-    continue: "متابعة",
+    continue: "اللغز التالي",
   },
   progressOverview: {
     title: "مسار الرحلة",

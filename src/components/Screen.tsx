@@ -21,19 +21,17 @@ export function Screen({
   return (
     <div className="flex min-h-[100dvh] flex-col bg-zwita-white text-zwita-ink">
       {header ? (
-        <header className="safe-top safe-x px-5 pt-5">{header}</header>
+        <header className="pad-x pad-top">{header}</header>
       ) : null}
       <main
         className={
-          bleed
-            ? "flex flex-1 flex-col"
-            : "safe-x flex flex-1 flex-col px-5 py-6"
+          bleed ? "flex flex-1 flex-col" : "pad-x flex flex-1 flex-col py-6"
         }
       >
         {children}
       </main>
       {footer ? (
-        <footer className="action-bar safe-bottom safe-x sticky bottom-0 px-5 pb-5 pt-4">
+        <footer className="action-bar pad-x pad-bottom sticky bottom-0 pt-4">
           {footer}
         </footer>
       ) : null}

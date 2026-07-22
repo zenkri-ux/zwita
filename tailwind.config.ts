@@ -12,18 +12,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Channel form + <alpha-value> so opacity modifiers (bg-zwita-olive/10,
+        // text-zwita-ink/70, …) actually emit CSS. See globals.css.
         zwita: {
-          white: "var(--zwita-white)",
-          olive: "var(--zwita-olive)",
-          "olive-dark": "var(--zwita-olive-dark)",
-          "olive-deep": "var(--zwita-olive-deep)",
-          clay: "var(--zwita-clay)",
-          "clay-dark": "var(--zwita-clay-dark)",
-          amber: "var(--zwita-amber)",
-          "amber-dark": "var(--zwita-amber-dark)",
-          ink: "var(--zwita-ink)",
-          blue: "var(--zwita-blue)",
-          "blue-dark": "var(--zwita-blue-dark)",
+          white: "rgb(var(--zwita-white-rgb) / <alpha-value>)",
+          olive: "rgb(var(--zwita-olive-rgb) / <alpha-value>)",
+          "olive-dark": "rgb(var(--zwita-olive-dark-rgb) / <alpha-value>)",
+          "olive-deep": "rgb(var(--zwita-olive-deep-rgb) / <alpha-value>)",
+          clay: "rgb(var(--zwita-clay-rgb) / <alpha-value>)",
+          "clay-dark": "rgb(var(--zwita-clay-dark-rgb) / <alpha-value>)",
+          amber: "rgb(var(--zwita-amber-rgb) / <alpha-value>)",
+          "amber-dark": "rgb(var(--zwita-amber-dark-rgb) / <alpha-value>)",
+          ink: "rgb(var(--zwita-ink-rgb) / <alpha-value>)",
+          blue: "rgb(var(--zwita-blue-rgb) / <alpha-value>)",
+          "blue-dark": "rgb(var(--zwita-blue-dark-rgb) / <alpha-value>)",
         },
       },
       borderRadius: {

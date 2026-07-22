@@ -8,9 +8,16 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: "list",
+  // Chromium instances are heavy; too many in parallel starve each other on a
+  // modest machine and turn real assertions into timeouts.
+  workers: process.env.CI ? 4 : undefined,
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
+    // Skips the autoplaying welcome film (see useReducedMotion), so the suite
+    // is not re-downloading and decoding it on every page load — and the
+    // reduced-motion path gets exercised for free.
+    contextOptions: { reducedMotion: "reduce" },
   },
   projects: [
     {
