@@ -39,3 +39,8 @@ yarn-error.log*
 # env
 .env
 .env*.local
+
+# local sqlite analytics db
+/data
+*.db
+*.db-*

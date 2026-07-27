@@ -18,6 +18,15 @@ const nextConfig = {
     // Local authentic photography only; no remote image hosts in the slice.
     formats: ["image/avif", "image/webp"],
   },
+  // better-sqlite3 is a native module: keep webpack from trying to bundle it,
+  // and make sure its compiled binary is traced into the standalone output.
+  // Both keys live under `experimental` in Next 14.
+  experimental: {
+    serverComponentsExternalPackages: ["better-sqlite3"],
+    outputFileTracingIncludes: {
+      "/api/**": ["./node_modules/better-sqlite3/build/Release/*.node"],
+    },
+  },
 };
 
 export default withSerwist(nextConfig);

@@ -8,6 +8,29 @@ import { scoreForStation } from "@/lib/game/score";
 import { isRouteComplete, derivePhase } from "@/lib/game/completion";
 import { CURRENT_GAME_VERSION, type GameState, type GamePhase, type Locale } from "@/lib/game/types";
 import { DEFAULT_LOCALE } from "@/lib/i18n/locale";
+import { track } from "@/lib/analytics/track";
+import type { GameEvent, GameEventType } from "@/lib/analytics/events";
+
+/**
+ * Emit an analytics event from the current game state. Fire-and-forget: the
+ * tracker is non-blocking and swallows failures, so this never affects play.
+ */
+function emit(
+  state: GameState,
+  type: GameEventType,
+  extra: Partial<GameEvent> = {},
+): void {
+  track({
+    type,
+    clientTs: new Date().toISOString(),
+    sessionId: state.sessionId,
+    playerId: state.playerId,
+    nickname: state.nickname || undefined,
+    avatar: state.avatar || undefined,
+    locale: state.locale,
+    ...extra,
+  });
+}
 
 // Single persistence instance for the app lifetime (client only).
 let persistence: PersistenceAdapter | null = null;
@@ -98,6 +121,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     };
     set(withPhase(fresh));
     persist(fresh);
+    emit(fresh, "session_started");
   },
 
   setProfile: (nickname, avatar, locale) => {
@@ -111,6 +135,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     };
     set(withPhase(next));
     persist(next);
+    emit(next, "profile_set");
   },
 
   startRoute: () => {
@@ -128,6 +153,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     };
     set(withPhase(next));
     persist(next);
+    emit(next, "route_started", { total: next.stationIds.length });
   },
 
   submitScan: (raw) => {
@@ -152,6 +178,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const next: GameState = { ...current, attemptsByStation };
       set(withPhase(next));
       persist(next);
+      emit(next, "scan", {
+        outcome: result.outcome,
+        stationId: expectedId,
+        index: next.currentIndex + 1,
+        total: next.stationIds.length,
+      });
       return result;
     }
 
@@ -172,6 +204,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
     set(withPhase(next));
     persist(next);
+    emit(next, "scan", {
+      outcome: "correct",
+      stationId: result.station.id,
+      score: next.score,
+      index: next.completedStationIds.length,
+      total: next.stationIds.length,
+    });
+    if (next.completedAt) {
+      emit(next, "completed", { score: next.score, total: next.stationIds.length });
+    }
     return result;
   },
 
@@ -184,6 +226,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   reset: () => {
+    const current = get().state;
+    if (current) emit(current, "reset");
     set({ ...withPhase(null), hydrated: true });
     persist(null);
   },
