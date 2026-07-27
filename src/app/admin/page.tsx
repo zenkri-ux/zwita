@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AvatarMark } from "@/components/AvatarMark";
+import { AdminHeader } from "@/components/AdminHeader";
 import { getStation } from "@/content/stations";
 
 type Summary = {
@@ -115,11 +116,6 @@ export default function AdminDashboard() {
     return () => clearInterval(t);
   }, [load, selected]);
 
-  async function logout() {
-    await fetch("/api/admin/login", { method: "DELETE" });
-    router.replace("/admin/login");
-  }
-
   const s = data?.summary;
   const tiles: { label: string; value: number }[] = s
     ? [
@@ -133,25 +129,7 @@ export default function AdminDashboard() {
 
   return (
     <div dir="ltr" className="min-h-[100dvh] bg-zwita-white text-zwita-ink">
-      <header className="flex items-center justify-between border-b border-black/5 bg-white px-5 py-4">
-        <h1 className="text-lg font-black text-zwita-olive-dark">ZWITA · Admin</h1>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => void load(selected)}
-            className="rounded-input bg-zwita-olive/10 px-3 py-2 text-sm font-bold text-zwita-olive-deep"
-          >
-            Rafraîchir
-          </button>
-          <button
-            type="button"
-            onClick={logout}
-            className="text-sm font-semibold text-zwita-ink/60 underline"
-          >
-            Se déconnecter
-          </button>
-        </div>
-      </header>
+      <AdminHeader />
 
       <main className="mx-auto max-w-4xl px-5 py-6">
         {error ? (

@@ -1,26 +1,25 @@
-import type { Station } from "@/content/types";
 import type { Locale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/locale";
 import { getDict } from "@/lib/i18n/dictionaries";
+import type { StationDisplay } from "@/lib/content/display";
 import { CheckCircleIcon } from "./icons";
 
 /**
  * Station reward after a correct scan.
  *
- * Deliberately TEXT ONLY: the visitor is standing in front of the real station
- * and its panel, so showing a photograph of what is already in front of them
- * adds nothing. The screen leads with an unmistakable success confirmation —
- * previously it was too easy to miss whether a scan had worked — then gives the
- * explanation to read, then a single "next" action that reveals the next clue.
+ * Leads with an unmistakable success banner, then — if the admin has set an
+ * explanation image for this station — shows it above the text, then the
+ * explanation itself, then a single "next clue" action. Content comes from the
+ * resolved display (built-in defaults with any admin override applied).
  */
 export function DiscoveryCard({
-  station,
+  display,
   locale,
   onContinue,
   continueLabel,
   successLabel,
 }: {
-  station: Station;
+  display: StationDisplay;
   locale: Locale;
   onContinue: () => void;
   continueLabel: string;
@@ -30,7 +29,6 @@ export function DiscoveryCard({
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Unmistakable "you got it right" banner. */}
       <div className="animate-toast-in flex flex-col items-center gap-3 rounded-media bg-zwita-olive/10 px-5 py-7 text-center">
         <span className="flex h-16 w-16 items-center justify-center rounded-full bg-zwita-olive">
           <CheckCircleIcon size={38} className="text-white" />
@@ -38,31 +36,42 @@ export function DiscoveryCard({
         <p className="text-lg font-black text-zwita-olive-deep">{successLabel}</p>
       </div>
 
+      {display.explainImage ? (
+        <div className="mt-5 overflow-hidden rounded-media bg-zwita-ink/5">
+          {/* May be an uploaded /api/media image, so a plain <img>. */}
+          <img
+            src={display.explainImage}
+            alt=""
+            className="max-h-72 w-full object-cover"
+          />
+        </div>
+      ) : null}
+
       <h2 className="mt-6 text-[21px] font-black text-zwita-ink">
-        {t(station.title, locale)}
+        {t(display.title, locale)}
       </h2>
-      <p className="mt-2 text-[15px] leading-[1.9] text-zwita-ink/85">
-        {t(station.description, locale)}
+      <p className="mt-2 whitespace-pre-line text-[15px] leading-[1.9] text-zwita-ink/85">
+        {t(display.description, locale)}
       </p>
 
-      {station.funFact ? (
+      {display.funFact ? (
         <div className="mt-4 rounded-card bg-zwita-amber/10 px-4 py-3.5">
           <p className="text-xs font-extrabold text-zwita-amber-dark">
             {dict.discovery.funFactLabel}
           </p>
           <p className="mt-1.5 text-[13.5px] leading-relaxed text-zwita-ink/85">
-            {t(station.funFact, locale)}
+            {t(display.funFact, locale)}
           </p>
         </div>
       ) : null}
 
-      {station.safetyNote ? (
+      {display.safetyNote ? (
         <div className="mt-3 rounded-card bg-zwita-clay/10 px-4 py-3.5">
           <p className="text-xs font-extrabold text-zwita-clay-dark">
             {dict.discovery.safetyLabel}
           </p>
           <p className="mt-1.5 text-[13.5px] leading-relaxed text-zwita-ink/85">
-            {t(station.safetyNote, locale)}
+            {t(display.safetyNote, locale)}
           </p>
         </div>
       ) : null}

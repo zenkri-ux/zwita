@@ -10,6 +10,8 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 import { DiscoveryCard } from "@/components/DiscoveryCard";
 import { ScanFeedback } from "@/components/ScanFeedback";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { useContentStore } from "@/lib/content/store";
+import { defaultDisplay } from "@/lib/content/display";
 import type { Station } from "@/content/types";
 import type { ScanOutcome } from "@/lib/game/types";
 
@@ -28,10 +30,16 @@ export default function ScanCodePage({ params }: { params: { code: string } }) {
   const dict = useDict();
   const { hydrated, state, phase } = useHydratedGame();
   const submitScan = useGameStore((s) => s.submitScan);
+  const content = useContentStore((s) => s.byId);
+  const loadContent = useContentStore((s) => s.load);
 
   const [outcome, setOutcome] = useState<ScanOutcome | null>(null);
   const [station, setStation] = useState<Station | null>(null);
   const processed = useRef(false);
+
+  useEffect(() => {
+    void loadContent();
+  }, [loadContent]);
 
   useEffect(() => {
     if (!hydrated || processed.current) return;
@@ -91,7 +99,7 @@ export default function ScanCodePage({ params }: { params: { code: string } }) {
         <OfflineBanner />
         <Screen>
           <DiscoveryCard
-            station={station}
+            display={content[station.id] ?? defaultDisplay(station)}
             locale={state.locale}
             onContinue={() =>
               router.replace(phase === "complete" ? "/complete" : "/mission")

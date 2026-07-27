@@ -17,6 +17,8 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { BackIcon, CheckCircleIcon, ProgressIcon, ScanIcon } from "@/components/icons";
 import { getStation, scannableStations } from "@/content/stations";
 import { buildScanUrl } from "@/lib/qr/payload";
+import { useContentStore } from "@/lib/content/store";
+import { defaultDisplay } from "@/lib/content/display";
 import type { Station } from "@/content/types";
 import type { ScanOutcome } from "@/lib/game/types";
 import { t } from "@/lib/i18n/locale";
@@ -29,11 +31,18 @@ export default function MissionPage() {
   const { hydrated, state, phase } = useHydratedGame();
   const submitScan = useGameStore((s) => s.submitScan);
   const reset = useGameStore((s) => s.reset);
+  const content = useContentStore((s) => s.byId);
+  const loadContent = useContentStore((s) => s.load);
 
   const [mode, setMode] = useState<Mode>("clue");
   const [feedback, setFeedback] = useState<Exclude<ScanOutcome, "correct"> | null>(null);
   const [discovered, setDiscovered] = useState<Station | null>(null);
   const [showReset, setShowReset] = useState(false);
+
+  // Pull the latest (admin-editable) station content; falls back to defaults.
+  useEffect(() => {
+    void loadContent();
+  }, [loadContent]);
 
   // Phase guards. Do not redirect to /complete while showing the final
   // discovery screen (mode === "discovery").
@@ -186,13 +195,14 @@ export default function MissionPage() {
 
   // --- Discovery (also used for the final station before /complete) -------
   if (mode === "discovery" && discovered) {
+    const discoveredDisplay = content[discovered.id] ?? defaultDisplay(discovered);
     return (
       <>
         <OfflineBanner />
         <Screen header={progress}>
           <div className="mt-4">
             <DiscoveryCard
-              station={discovered}
+              display={discoveredDisplay}
               locale={locale}
               onContinue={handleContinue}
               continueLabel={
@@ -267,11 +277,20 @@ export default function MissionPage() {
       >
         {currentStation ? (
           <ClueCard
-            clue={t(currentStation.clues[0] ?? currentStation.title, locale)}
+            clue={t(
+              (content[currentStation.id] ?? defaultDisplay(currentStation)).clue,
+              locale,
+            )}
+            coverImage={
+              (content[currentStation.id] ?? defaultDisplay(currentStation)).coverImage
+            }
             eyebrow={`${dict.mission.stepLabel} ${step}`}
           />
         ) : (
-          <ClueCard clue={dict.mission.scan} />
+          <ClueCard
+            clue={dict.mission.scan}
+            coverImage="/images/mill/interior/main-hall.jpg"
+          />
         )}
       </Screen>
 

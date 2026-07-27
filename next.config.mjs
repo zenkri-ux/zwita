@@ -22,7 +22,7 @@ const nextConfig = {
   // and make sure its compiled binary is traced into the standalone output.
   // Both keys live under `experimental` in Next 14.
   experimental: {
-    serverComponentsExternalPackages: ["better-sqlite3"],
+    serverComponentsExternalPackages: ["better-sqlite3", "sharp"],
     outputFileTracingIncludes: {
       "/api/**": ["./node_modules/better-sqlite3/build/Release/*.node"],
     },

@@ -3,6 +3,13 @@ import Database from "better-sqlite3";
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 
+/** Directory for admin-uploaded images, alongside the database file. */
+export function uploadsDir(): string {
+  const dir = process.env.ZWITA_UPLOADS_DIR || join(dirname(dbPath()), "uploads");
+  mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
 // Single SQLite database for game analytics. The file lives outside the app
 // bundle (a mounted Docker volume in production) so it survives redeploys.
 //
@@ -42,6 +49,15 @@ export function getDb(): Database.Database {
     );
     CREATE INDEX IF NOT EXISTS idx_events_player ON events(player_id);
     CREATE INDEX IF NOT EXISTS idx_events_ts ON events(id DESC);
+
+    CREATE TABLE IF NOT EXISTS station_overrides (
+      station_id   TEXT PRIMARY KEY,
+      clue_ar TEXT, clue_fr TEXT, clue_en TEXT,
+      desc_ar TEXT, desc_fr TEXT, desc_en TEXT,
+      cover_image  TEXT,
+      explain_image TEXT,
+      updated_at   TEXT
+    );
 
     CREATE TABLE IF NOT EXISTS players (
       player_id   TEXT PRIMARY KEY,

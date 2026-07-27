@@ -1,29 +1,27 @@
-import Image from "next/image";
-
 /**
- * The active clue, set over a darkened photograph of the mill interior. The
- * amber eyebrow marks which step the player is on; the clue itself stays short
- * and high-contrast so it reads at a glance in dim light.
+ * The active clue, set over a darkened photograph. The background image is the
+ * station's cover, which the admin can change; it may be a built-in /images
+ * path or an uploaded /api/media image, so a plain <img> is used rather than
+ * next/image. The amber eyebrow marks the step; the clue stays short and
+ * high-contrast for dim light.
  */
 export function ClueCard({
   clue,
   eyebrow,
+  coverImage,
 }: {
   clue: string;
   eyebrow?: string;
+  coverImage: string;
 }) {
   return (
     <section className="flex flex-1 items-center justify-center">
       <div className="relative overflow-hidden rounded-media shadow-lift">
-        <Image
-          src="/images/mill/interior/main-hall.jpg"
+        <img
+          src={coverImage}
           alt=""
-          fill
-          sizes="(max-width: 640px) 100vw, 640px"
-          className="object-cover"
-          priority
+          className="absolute inset-0 h-full w-full object-cover"
         />
-        {/* Darkening wash keeps the Arabic legible over the photograph. */}
         <div
           aria-hidden
           className="absolute inset-0 bg-gradient-to-b from-zwita-ink/40 to-zwita-ink/75"

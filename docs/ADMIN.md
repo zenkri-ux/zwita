@@ -6,7 +6,9 @@ d'accès SSH à la VM. À partager par simple URL + mot de passe (ami, client).
 - **URL** : `https://zwita.gr07-idriss.work.gd/admin`
 - **Connexion** : mot de passe unique (variable d'environnement `ADMIN_PASSWORD`).
 
-## Ce qu'on y voit
+L'admin a deux onglets : **Statistiques** et **Contenu du jeu**.
+
+## Onglet Statistiques
 
 - **Tuiles** : nombre de joueurs, parties démarrées, parties terminées, total
   des scans, bons scans.
@@ -14,6 +16,29 @@ d'accès SSH à la VM. À partager par simple URL + mot de passe (ami, client).
   statut (en cours / terminé), dernière activité. Clic sur un joueur → son
   historique complet.
 - **Activité** : flux en temps quasi réel (rafraîchi toutes les 20 s).
+
+## Onglet Contenu du jeu
+
+Pour chaque station, l'admin peut modifier **en arabe, français et anglais** :
+
+- l'**indice** (le texte de l'énigme) ;
+- l'**explication** (le texte affiché après un bon scan) ;
+- la **photo de couverture** (fond de l'écran d'indice) ;
+- la **photo de l'explication** (image sur l'écran de découverte).
+
+Un bouton **« Réinitialiser au défaut »** revient au contenu d'origine.
+
+Fonctionnement : le contenu par défaut reste dans le code ; les modifications
+sont enregistrées comme des **surcharges** en base. Le jeu lit la surcharge si
+elle existe, sinon le défaut, et garde une copie en cache pour rester jouable
+hors-ligne dans la huilerie.
+
+**Les codes QR (`scanCode`) ne changent jamais** — seuls les textes et images
+sont éditables. Les QR déjà imprimés restent valides.
+
+Les images uploadées sont converties en WebP, redimensionnées et stockées dans
+le **même volume `/data`** (sous `uploads/`) — elles survivent donc aux
+redéploiements, comme la base.
 
 ## Comment ça marche
 
